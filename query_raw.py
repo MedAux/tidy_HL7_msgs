@@ -131,10 +131,10 @@ def parse_msg_id(fields, msgs):
     Returns:
         List(string)
     '''
-    def parse_msg(field):
+    def parse_msgs(field):
         return list(map(parse_el(field), msgs))
 
-    fields_parsed = list(map(parse_msg, fields))
+    fields_parsed = list(map(parse_msgs, fields))
     msg_ids = concat_fields(fields_parsed)
 
     return msg_ids
@@ -212,7 +212,8 @@ def parse_el(loc_txt):
                 datum = seg.split("|")[loc['comp']]
             else:
                 try:
-                    datum = seg.split("|")[loc['comp']].split("^")[loc['subcomp'] - 1]
+                    comp = seg.split("|")[loc['comp']]
+                    datum = comp.split("^")[loc['subcomp'] - 1]
                 except IndexError:
                     # handle empty component (i.e. '||')
                     datum = ''                  

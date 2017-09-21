@@ -1,3 +1,5 @@
+import re
+
 def query_raw(q, store, limit=-1):
     '''
     Query IMAT for raw HL7 messages
@@ -23,11 +25,11 @@ def query_raw(q, store, limit=-1):
 
 def check_lens_equal(*args):
     '''
-    Ensure the lengths two or more lists are equal
+    Ensure list lengths are equal
     '''
     lengths = [len(x) for x in args]
-    is_all_equal = len(set(lengths)) == 1
-    if not is_all_equal:
+    are_all_equal = len(set(lengths)) == 1
+    if not are_all_equal:
         raise RuntimeError(
             "Length of lists are not equal.  Lists of unequal length will "
             "invalidate the relationship of data elements between lists "
@@ -39,7 +41,7 @@ def check_nested_lens_equal(lst1, lst2):
     Ensure the lengths of nested lists are equal
     '''
     check_lens_equal(lst1, lst2)
-    for i in range(0, len(lst1)):
+    for i in range(len(lst1)):
         if len(lst1[i]) != len(lst2[i]):
             raise RuntimeError(
                 "Length of nested lists is not equal.  Nested lists of unequal "
@@ -89,62 +91,25 @@ def zip_nested_lists(lst1, lst2):
         List of nested lists whose elements are tuples.
     '''
     check_nested_lens_equal(lst1, lst2)
-    return [list(zip(lst1[i], lst2[i])) for i in range(0, len(lst1))]
+    return [list(zip(lst1[i], lst2[i])) for i in range(len(lst1))]
 
 def concat_fields(lst_parsed):
     '''
-    Examples: 
+    Examples:
     >>> concat_fields2([[['a', 'b']]])
     ['a', 'b']
     >>> concat_fields2([[['a', 'b']], [['y', 'z']], [['s', 't']]])
     ['a,y,s', 'b,z,t']
     '''
     if len(lst_parsed) == 1 or not bool(lst_parsed[1]):
-        # either list of single parsed field or appended field is empty 
-        # (i.e the first element in list is complete concatination) 
+        # either list of single parsed field or appended field is empty
+        # (i.e the first element in list is complete concatination)
         return flatten(lst_parsed[0])
     else:
         zipped = zip_nested_lists(lst_parsed[0], lst_parsed[1])
         concatted = [[",".join(pair) for pair in sublist] for sublist in zipped]
         to_concat = [concatted, flatten(lst_parsed[2:])]
         return concat_fields(to_concat)
-
-# def concat_fields(*fields):
-#     '''
-#     Concatinate nested list of strings
-#     NOTE: Input is likely a list of fields and this function may not be appropriate 
-#     Examples:
-#         >>> concat_fields([['a', 'b']])
-#         ['a', 'b']
-
-#         >>> concat_fields([['a', 'b']], [['y', 'z']])
-#         [['a,y', 'b,z']]
-
-#         >>> concat_fields([['a', 'b'],['c', 'd']], [['w', 'x'],['y', 'z']])
-#         [['a,w', 'b,x'], ['c,y', 'd,z']]
-
-#         >>> concat_fields([['a', 'b']], [['y', 'z']], [['s', 't']])
-#         ['a,y,s', 'b,z,t']
-
-#     Args:
-#         TODO: List of strings
-
-#     Returns:
-#         List of nested lists whose elements are concatinated.
-
-#     Note:
-#         In the context of parsed HL7 messages, each nested list corresponds
-#         to a message and each element corresponds to data parsed from a
-#         message segment.
-#     '''
-#     if len(fields) == 1 or not bool(fields[1]):
-#         # single field passed or second arg (i.e 'to_concat') is emtpy list
-#         return flatten(fields[0])
-#     else:
-#         zipped = zip_nested_lists(fields[0], fields[1])
-#         concatted = [[",".join(pair) for pair in sublist] for sublist in zipped]
-#         to_concat = flatten([f for f in fields[2:]])
-#         return concat_fields(concatted, to_concat)
 
 def parse_msg_id(fields, msgs):
     '''
@@ -168,13 +133,48 @@ def parse_msg_id(fields, msgs):
     '''
     def parse_msg(field):
         return list(map(parse_el(field), msgs))
-    # fields_parsed = fields.map(lambda field: list(map(parse_el(field), msgs)))
+
     fields_parsed = list(map(parse_msg, fields))
     msg_ids = concat_fields(fields_parsed)
 
     return msg_ids
 
-def parse_el(loc):
+def parse_loc(loc_txt):
+    '''
+    Parses an HL7 message location
+
+    Example:
+    >>> parse_loc('PR1.3')
+    {'seg': 'PR1', 'comp': 3, 'depth': 2}
+    >>> parse_loc('DG1.3.1')
+    {'seg': 'DG1', 'comp': 3, 'subcomp': 1, 'depth': 3}
+
+    Args:
+        loc_txt: string
+
+    Returns:
+        Dictionary of attribute and parsed elements of location
+    '''
+    loc = {}
+    loc['depth'] = len(loc_txt.split("."))
+
+    if loc['depth'] < 2 or loc['depth'] > 3:
+        raise ValueError(
+            "Syntax of location must be either '<segment>.<component>' or"
+            "'<segment>.<component>.<subcomponent>'"
+        )
+
+    loc_split = loc_txt.split(".")
+
+    loc['seg'] = loc_split[0]
+    loc['comp'] = int(loc_split[1])
+
+    if loc['depth'] == 3:
+        loc['subcomp'] = int(loc_split[2])
+
+    return loc
+
+def parse_el(loc_txt):
     '''
     Parse HL7 messages at a given location.
 
@@ -201,33 +201,21 @@ def parse_el(loc):
     Returns:
         Function to parse HL7 message at the given location
     '''
-    # TODO: separate function?
-    depth = len(loc.split("."))
-    if depth == 2:
-        segment, comp = loc.split(".")
-    elif depth == 3:
-        segment, comp, subcomp = loc.split(".")
-        subcomp = int(subcomp)
-    else:
-        raise ValueError(
-            "Syntax of location must be either 'segment.component' or"
-            "'segment.component.subcomponent'"
-        )
-    
-    comp = int(comp)
+    loc = parse_loc(loc_txt)
 
     def parser(msg):
-        segs = re.findall(segment + '\|.*(?=\\n)', msg)
+        segs = re.findall(loc['seg'] + '\|.*(?=\\n)', msg)
         data = []
+        # TODO: functional approach
         for seg in segs:
-            if depth == 2:
-                datum = seg.split("|")[comp]
+            if loc['depth'] == 2:
+                datum = seg.split("|")[loc['comp']]
             else:
                 try:
-                    datum = seg.split("|")[comp].split("^")[subcomp - 1]
-                except IndexError:          
+                    datum = seg.split("|")[loc['comp']].split("^")[loc['subcomp'] - 1]
+                except IndexError:
                     # handle empty component (i.e. '||')
-                    datum = ''          
+                    datum = ''                  
             data.append(datum)
         return data
     return parser
@@ -238,14 +226,7 @@ def main():
 
     msgs = query_raw(query_broad, "ADTs", 50)
 
-    msg_ids = parse_msg_id(
-        [
-            "PID.3.4",
-            "PID.3.1",
-            "PID.18.1",
-        ],
-        msgs
-    )
+    msg_ids = parse_msg_id(["PID.3.4", "PID.3.1", "PID.18.1"], msgs)
     print(msg_ids)
 
 main()

@@ -1,10 +1,12 @@
 # TODO
 # - check that all fields are from the same segment
 # - sep msg ID into fields 
+# - ensure msgs_id fields are single value
 # - input args as dictionary of field:col_name
+# - example data: http://www.hl7.org/implement/standards/product_brief.cfm?product_id=228
 
-# To test:
-# - pytest: comment out 'import msgs' and main()
+# TESTING:
+# - pytest: comment out 'from test.test_data import msgs ' and main()
 # - example output: keep 'import msgs' and main(); load module; reload module
 #     w/ 'import imp', imp.reload(query_raw) 
 
@@ -19,9 +21,10 @@ def query_raw(q, store, limit=-1):
 
     Args:
         q: string
-            an IMAT query
+            An IMAT query
         store: string
         limit: int
+            Default value of -1 returns all hits
 
     Returns:
         List of raw HL7 messages
@@ -38,7 +41,7 @@ def query_raw(q, store, limit=-1):
 
 def check_lens_equal(*args):
     '''
-    Ensure list lengths are equal
+    Ensure the length of lists are equal
     '''
     lengths = [len(x) for x in args]
     are_all_equal = len(set(lengths)) == 1
@@ -64,8 +67,9 @@ def check_nested_lens_equal(lst1, lst2):
 
 def flatten(lst):
     '''
-    Flatten lists nested one level deep. Empty nested lists (i.e. sublists)
-    are not perserved.
+    Flatten lists nested one level deep.
+
+    Empty nested lists are not perserved.
 
     Example:
         >>> flatten([[1, 2], [3, 4], [5, 6]])
@@ -78,7 +82,7 @@ def flatten(lst):
         [1, 2, 3, 4, 5, 6, [7, 8]]
 
     Args:
-        l: list
+        lst: list
 
     Returns:
         A list
@@ -89,6 +93,8 @@ def zip_nested(lst1, lst2):
     '''
     Zip nested lists.
 
+    The length of the two lists must be equal.
+
     Examples:
         >>> zip_nested([['a', 'b']], [['y', 'z']])
         [[('a', 'y'), ('b', 'z')]]
@@ -98,9 +104,7 @@ def zip_nested(lst1, lst2):
 
     Args:
         lst1: list
-            Length and length of nested lists must be the same length as lst2.
         lst2: list
-            Length and length of nested lists must be the same length as lst1.
 
     Returns:
         List of nested lists whose elements are tuples.
@@ -110,6 +114,8 @@ def zip_nested(lst1, lst2):
 
 def concat(lsts):
     '''
+    Concatinate lists of strings
+
     Examples:
         >>> concat([[['a', 'b']], [['y', 'z']], [['s', 't']]])
         ['a,y,s', 'b,z,t']
@@ -117,6 +123,11 @@ def concat(lsts):
         >>> concat([[['a', 'b']]])
         ['a', 'b']
 
+    Args:
+        lsts: list of lists(strings)
+
+    Returns:
+        List(strings)
     '''
     if len(lsts) == 1 or not bool(lsts[1]):
         # either a single parsed field or the appended field is empty, in which
@@ -130,23 +141,52 @@ def concat(lsts):
 
 def parse_msgs(field_txt, msgs):
     '''
-    TODO
+    Parse messages for a given field
+
+    Examples:
+        >>> msg1 = '...AL1|3|DA|1545^MORPHINE^99HIC|||20080828|||\n...'
+        >>> msg2 = '...AL1|1|DRUG|00000741^OXYCODONE||HYPOTENSION\n...'
+        >>> parse_msgs("AL1.3.1", [msg1, msg2])
+        >>> [['1545'], ['00000741']]
+
+        >>> # multiple segments per message
+        >>> msg3 = '...AL1|1|DRUG|00000741^OXYCODONE||HYPOTENSION\n...AL1|2|DRUG|00001433^TRAMADOL||SEIZURES~VOMITING\n'
+        >>> parse_msgs("AL1.3.1", [msg1, msg3])
+        >>> [['1545'], ['00000741', '00001433']]
+
+    Args:
+        field_text: string
+            Field to parse
+
+            Must be a single location represented by a segment, a component
+            and an optional subcomponent. A period (".") must separate
+            segments, components, and subcomponents (ex. "PR1.3" or
+            "DG1.3.1")
+
+        msgs: list
+            List of message to parse
+
+    Returns:
+        List of List(string)
     '''
     return list(map(parse_msg(field_txt), msgs))
 
 def parse_msg(field_txt):
     '''
-    TODO: problem in past parsing MSH segment?
-
     Higher-order function to parse a field from an HL7 message
+
+    Assumes field separator is a pipe ('|') and component separator is a
+    caret ('^')
+
+    TODO: parsing dependent on msgs field separators
 
     Example:
         >>> msg = '...AL1|3|DA|1545^MORPHINE^99HIC|||20080828|||\n...'
-        >>> parse_allergy_type = parse_element("AL1.2")
+        >>> parse_allergy_type = parse_msg("AL1.2")
         >>> parse_allergy_type(msg)
         >>> ['DA']
 
-        >>> parse_allergy_code_text = parse_element("AL1.3.2")
+        >>> parse_allergy_code_text = parse_msg("AL1.3.2")
         >>> parse_allergy_code_text(msg)
         >>> ['MORPHINE']
 
@@ -155,8 +195,8 @@ def parse_msg(field_txt):
         >>> ['MORPHINE', 'CODEINE']
 
     Args:
-        field: string
-            HL7 field to be parsed.
+        field_txt: string
+            Field to parse
 
             Must be a single location represented by a segment and 1 or 2
             subsequent components. A period (".") must separate segments and
@@ -165,7 +205,7 @@ def parse_msg(field_txt):
     Returns:
         Function to parse HL7 message at the given location
     '''
-    field = parse_field(field_txt)
+    field = parse_field_txt(field_txt)
 
     def parser(msg):
         segs = re.findall(field['seg'] + '\|.*(?=\\n)', msg)
@@ -255,14 +295,34 @@ def parse_field_txt(field_txt):
 
 def zip_msg_ids(lst, msg_ids):
     '''
-    Zip but ensures list lengths are equal.
+    Zip but ensure list lengths are equal
     '''
     check_lens_equal(msg_ids, lst)
     return list(zip(msg_ids, lst))
 
 def to_df(lst, field_txt):
     '''
-    TODO
+    Convert parsed values to dataframe
+
+    Args:
+        lst: list
+            List of tuples, where the first element is the message ID and the
+            second element is a list of parsed values
+
+        field_txt: string
+            Field name
+
+    Example:
+        >>> query_raw.to_df(
+        ...    [('msg_id1', ['val1']), ('msg_id2', ['val1', 'val2'])],
+        ...    parsed_field_w_msg_id, "field_txt")
+        ... )
+           msg_id   seg        field_txt
+        0  msg_id1  seg_0      val1
+        1  msg_id2  seg_0      val1
+        2  msg_id1  seg_1      None
+        3  msg_id2  seg_1      val2
+
     '''
     df = pd.DataFrame.from_dict(
         dict(lst),

@@ -177,9 +177,8 @@ def parse_msg(field_txt):
             else:
                 try:
                     comp = seg.split("|")[field['comp']]
-                    datum = comp.split("^")[field['subcomp'] - 1]
+                    datum = comp.split("^")[field['subcomp']]
                 except IndexError:
-                    # empty component (i.e. '||')
                     datum = ''
             data.append(datum)
         return data
@@ -213,22 +212,23 @@ def parse_msg_id(fields, msgs):
 
     return concat(fields_parsed)
 
-def parse_field(field_txt):
+def parse_field_txt(field_txt):
     '''
-    Parse an HL7 message field
+    Parse the string value of an HL7 message field
 
     Examples:
-        >>> parse_field('PR1.3')
+        >>> parse_field_txt('PR1.3')
         {'seg': 'PR1', 'comp': 3, 'depth': 2}
 
-        >>> parse_field('DG1.3.1')
-        {'seg': 'DG1', 'comp': 3, 'subcomp': 1, 'depth': 3}
+        >>> parse_field_txt('DG1.3.1')
+        {'seg': 'DG1', 'comp': 3, 'subcomp': 0, 'depth': 3}
 
     Args:
-        loc_txt: string
+        field_txt: string
+            Field name
 
     Returns:
-        Dictionary of attributes and parsed elements of location
+        Dictionary of field attributes and parsed elements
     '''
     field = {}
     field['depth'] = len(field_txt.split("."))
@@ -242,10 +242,14 @@ def parse_field(field_txt):
     loc_split = field_txt.split(".")
 
     field['seg'] = loc_split[0]
-    field['comp'] = int(loc_split[1])
+
+    if field['seg'] == "MSH":
+        field['comp'] = int(loc_split[1]) - 1
+    else:
+        field['comp'] = int(loc_split[1])
 
     if field['depth'] == 3:
-        field['subcomp'] = int(loc_split[2])
+        field['subcomp'] = int(loc_split[2]) - 1
 
     return field
 

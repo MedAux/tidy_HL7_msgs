@@ -33,22 +33,28 @@ def test_concat_fields():
         ['a,y,s', 'b,z,t']
     )
 
-def test_parse_loc():
-    loc_d2 = parse_field('PR1.3')
-    assert loc_d2['depth'] == 2
-    assert loc_d2['seg'] == 'PR1'
-    assert loc_d2['comp'] == 3
+def test_parse_field_txt():
+    field_d2 = parse_field_txt('PR1.3')
+    assert field_d2['depth'] == 2
+    assert field_d2['seg'] == 'PR1'
+    assert field_d2['comp'] == 3
 
-    loc_d3 = parse_field('DG1.3.1')
-    assert loc_d3['depth'] == 3
-    assert loc_d3['seg'] == 'DG1'
-    assert loc_d3['comp'] == 3
-    assert loc_d3['subcomp'] == 1
+    field_d3 = parse_field_txt('DG1.3.1')
+    assert field_d3['depth'] == 3
+    assert field_d3['seg'] == 'DG1'
+    assert field_d3['comp'] == 3
+    assert field_d3['subcomp'] == 0
+
+    msh_d3 = parse_field_txt('MSH.3.1')
+    assert msh_d3['depth'] == 3
+    assert msh_d3['seg'] == 'MSH'
+    assert msh_d3['comp'] == 2
+    assert msh_d3['subcomp'] == 0
 
     with pytest.raises(ValueError):
-        parse_field('DG1')
+        parse_field_txt('DG1')
     with pytest.raises(ValueError):
-        parse_field('DG1.2.3.4')
+        parse_field_txt('DG1.2.3.4')
 
 def test_parse_msg_ids():
     # TODO: test single field

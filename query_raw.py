@@ -1,7 +1,7 @@
 # TODO
 # - check that all fields are from the same segment
-# - sep msg ID into fields 
-# - ensure msgs_id fields are single value
+# - sep msg_id col of final df into fields 
+# - ensure single value for msgs_id fields
 # - input args as dictionary of field:col_name
 # - example data: http://www.hl7.org/implement/standards/product_brief.cfm?product_id=228
 
@@ -11,9 +11,9 @@
 #     w/ 'import imp', imp.reload(query_raw) 
 
 from test.test_data import msgs 
-from itertools import repeat
-import re
 import pandas as pd
+import itertools
+import re
 
 def query_raw(q, store, limit=-1):
     '''
@@ -247,7 +247,7 @@ def parse_msg_id(fields, msgs):
     fields_parsed = list(map(
         parse_msgs,
         fields,
-        repeat(msgs)
+        itertools.repeat(msgs)
     ))
 
     return concat(fields_parsed)
@@ -368,13 +368,13 @@ def parse_report_fields_and_tidy(fields, msg_ids, msgs):
     parsed_fields = map(
         parse_msgs,
         fields,
-        repeat(msgs)
+        itertools.repeat(msgs)
     )
 
     parsed_fields_w_msg_ids = map(
         zip_msg_ids,
         parsed_fields,
-        repeat(msg_ids)
+        itertools.repeat(msg_ids)
     )
 
     field_dfs = list(map(
@@ -411,7 +411,7 @@ def main():
         msgs
     )
 
-    print(df)
+    # print(df)
     return df
 
 main()

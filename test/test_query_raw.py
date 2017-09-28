@@ -33,6 +33,20 @@ def test_concat_fields():
         ['a,y,s', 'b,z,t']
     )
 
+def test_parse_msgs():
+    assert parse_msgs('DG1.6', test_data.msgs) == test_data.DG_1_6
+
+def test_parse_msg_ids():
+    assert parse_msg_id(['PID.3.4', 'PID.3.1', 'PID.18.1'], test_data.msgs) == (
+        test_data.msg_ids
+    )
+
+    non_unique_msg_ids = test_data.msgs + [test_data.msgs[0]]
+
+    with pytest.raises(RuntimeError):
+        parse_msg_id(['PID.3.4', 'PID.3.1', 'PID.18.1'], non_unique_msg_ids)
+
+
 def test_parse_field_txt():
     field_d2 = parse_field_txt('PR1.3')
     assert field_d2['depth'] == 2
@@ -55,9 +69,3 @@ def test_parse_field_txt():
         parse_field_txt('DG1')
     with pytest.raises(ValueError):
         parse_field_txt('DG1.2.3.4')
-
-def test_parse_msg_ids():
-    # TODO: test single field
-    assert parse_msg_id(['PID.3.4', 'PID.3.1', 'PID.18.1'], test_data.msgs) == (
-        test_data.msg_ids
-    )

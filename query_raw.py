@@ -281,11 +281,10 @@ def parse_field_txt(field_txt):
     loc_split = field_txt.split(".")
 
     field['seg'] = loc_split[0]
+    field['comp'] = int(loc_split[1])
 
     if field['seg'] == "MSH":
-        field['comp'] = int(loc_split[1]) - 1
-    else:
-        field['comp'] = int(loc_split[1])
+        field['comp'] -= 1
 
     if field['depth'] == 3:
         field['subcomp'] = int(loc_split[2]) - 1

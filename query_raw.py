@@ -210,13 +210,12 @@ def parse_msg(field_txt):
     def parser(msg):
         segs = re.findall(field['seg'] + '\|.*(?=\\n)', msg)
         data = []
-        # TODO: functional approach; DRY
         for seg in segs:
+            comp = seg.split("|")[field['comp']]
             if field['depth'] == 2:
-                datum = seg.split("|")[field['comp']]
+                datum = comp
             else:
                 try:
-                    comp = seg.split("|")[field['comp']]
                     datum = comp.split("^")[field['subcomp']]
                 except IndexError:
                     datum = ''
@@ -411,7 +410,7 @@ def main():
         msgs
     )
 
-    # print(df)
+    print(df)
     return df
 
 main()

@@ -69,3 +69,11 @@ def test_parse_field_txt():
         parse_field_txt('DG1')
     with pytest.raises(ValueError):
         parse_field_txt('DG1.2.3.4')
+
+def test_main():
+    with pytest.raises(RuntimeError):
+        main(
+            ['PID.3.4', 'PID.3.1', 'PID.18.1'],
+            ['DG1.3.1', 'DG1.3.2', 'AL.15'],
+            test_data.msgs
+        )

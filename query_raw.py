@@ -364,26 +364,30 @@ def join_dfs(dfs):
         dfs_to_join.append(df_join)
         return join_dfs(dfs_to_join)
 
-def parse_report_fields_and_tidy(fields, msg_ids, msgs):
-    '''
-    TODO
-    '''
-    parsed_fields = map(
+def main(id_fields, report_fields, msgs):
+    report_field_segs = [re.match('\w*', field).group() for field in report_fields]
+
+    if len(set(report_field_segs)) != 1:
+        raise RuntimeError("Reported fields must be from the same segment")
+
+    parsed_report_fields = map(
         parse_msgs,
-        fields,
+        report_fields,
         itertools.repeat(msgs)
     )
 
-    parsed_fields_w_msg_ids = map(
+    msg_ids = parse_msg_id(id_fields, msgs)
+
+    report_fields_w_ids = map(
         zip_msg_ids,
-        parsed_fields,
+        parsed_report_fields,
         itertools.repeat(msg_ids)
     )
 
     field_dfs = list(map(
         to_df,
-        parsed_fields_w_msg_ids,
-        fields
+        report_fields_w_ids,
+        report_fields
     ))
 
     df = join_dfs(field_dfs)
@@ -391,30 +395,13 @@ def parse_report_fields_and_tidy(fields, msg_ids, msgs):
     df.dropna(
         axis=0,
         how='all',
-        subset=fields,
+        subset=report_fields,
         inplace=True
     )
     return df
 
-def main():
-
-    # query_broad = '()s.sending_facility:"COVH"()NOT ()s.attending_doctor_id: IN("1952","2620","2489","1131","1604","3654","2216","1265","2511","3071","3050","3557","746","52118","2507","52715","51071","1080","2716","1948","51644","1321","1066")()s.patient_class:"Inpatient"()s.patient_type: IN("IPB","IPF","IPL","IPM","IPP","IPR","IPS")()d.discharge_time:[2017-08-06 TO 2017-09-20]()s.record_type:"ADT A08"'
-    # msgs = query_raw(query_broad, 'ADTs', 20)
-
-    # replace ids w/ msg_id_fields
-    msg_ids = parse_msg_id(
-        ['PID.3.4', 'PID.3.1', 'PID.18.1'], 
-        msgs
-    )
-
-    # replace fields w/ report_fields
-    df = parse_report_fields_and_tidy(
-        ['DG1.3.1', 'DG1.3.2', 'DG1.6', 'DG1.15'], 
-        msg_ids,
-        msgs
-    )
-
-    print(df)
-    return df
-
-main()
+# print(main(
+#     ['PID.3.4', 'PID.3.1', 'PID.18.1'],
+#     ['DG1.3.1', 'DG1.3.2', 'DG1.6', 'DG1.15'],
+#     msgs
+# ))

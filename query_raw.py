@@ -1,5 +1,4 @@
 # TODO
-# - check that all fields are from the same segment
 # - sep msg_id col of final df into fields 
 # - ensure single value for msgs_id fields
 # - input args as dictionary of field:col_name
@@ -10,7 +9,7 @@
 # - example output: keep 'import msgs' and main(); load module; reload module
 #     w/ 'import imp', imp.reload(query_raw) 
 
-from test.test_data import msgs 
+# from test.test_data import msgs 
 import pandas as pd
 import itertools
 import re
@@ -155,7 +154,7 @@ def parse_msgs(field_txt, msgs):
         >>> [['1545'], ['00000741', '00001433']]
 
     Args:
-        field_text: string
+        field_txt: string
             Field to parse
 
             Must be a single location represented by a segment, a component
@@ -316,11 +315,11 @@ def to_df(lst, field_txt):
             Field name
 
     Example:
-        >>> query_raw.to_df(
+        >>> to_df(
         ...    [('msg_id1', ['val1']), ('msg_id2', ['val1', 'val2'])],
-        ...    parsed_field_w_msg_id, "field_txt")
+        ...    "field_name")
         ... )
-           msg_id   seg        field_txt
+           msg_id   seg        field_name
         0  msg_id1  seg_0      val1
         1  msg_id2  seg_0      val1
         2  msg_id1  seg_1      None
@@ -356,7 +355,7 @@ def join_dfs(dfs):
         df_join = pd.merge(
             dfs[0],
             dfs[1],
-            how = "inner",
+            how="inner",
             on=["msg_id", "seg"],
             sort=False
         )

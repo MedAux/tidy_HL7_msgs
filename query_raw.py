@@ -253,7 +253,11 @@ def parse_msg_id(fields, msgs):
     if len(set(concatted)) != len(msgs):
         raise RuntimeError("Messages IDs are not unique")
 
+<<<<<<< HEAD
     return concatted
+=======
+    return concat(fields_parsed)
+>>>>>>> 3b8582312e15ca1bf033cd749bdac104511fb78a
 
 def parse_field_txt(field_txt):
     '''

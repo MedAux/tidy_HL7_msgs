@@ -69,6 +69,7 @@ def test_parse_field_txt():
         parse_field_txt('DG1')
     with pytest.raises(ValueError):
         parse_field_txt('DG1.2.3.4')
+<<<<<<< HEAD
 
 def test_main():
     with pytest.raises(RuntimeError):
@@ -77,3 +78,5 @@ def test_main():
             ['DG1.3.1', 'DG1.3.2', 'AL.15'],
             test_data.msgs
         )
+=======
+>>>>>>> 3b8582312e15ca1bf033cd749bdac104511fb78a

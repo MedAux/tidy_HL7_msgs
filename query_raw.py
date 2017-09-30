@@ -409,10 +409,9 @@ def main(id_fields, report_fields, msgs):
         subset=report_fields,
         inplace=True
     )
-    return df
 
-# print(main(
-#     ['PID.3.4', 'PID.3.1', 'PID.18.1'],
-#     ['DG1.3.1', 'DG1.3.2', 'DG1.6', 'DG1.15'],
-#     msgs
-# ))
+    id_cols = df['msg_id'].str.split(",", expand=True)
+    id_cols.columns = id_fields
+    df_w_id_cols = pd.concat([id_cols, df], axis=1).drop('msg_id', axis=1)
+
+    return df_w_id_cols

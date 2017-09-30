@@ -1,20 +1,15 @@
 # TODO
-# - sep msg_id col of final df into fields 
-# - ensure single value for msgs_id fields
 # - input args as dictionary of field:col_name
-# - example data: http://www.hl7.org/implement/standards/product_brief.cfm?product_id=228
+# - flexible parsing using msg separators
 
-# TESTING:
-# - pytest: comment out 'from test.test_data import msgs ' and main()
-# - example output: keep 'import msgs' and main(); load module; reload module
-#     w/ 'import imp', imp.reload(query_raw) 
+# TO TEST:
+# - run 'pytest -s' to disable capturing of stdout
 
-# from test.test_data import msgs 
-import pandas as pd
-import itertools
 import re
+import itertools
+import pandas as pd
 
-def query_raw(q, store, limit=-1):
+def query_raw(query, store, limit=-1):
     '''
     Query IMAT for raw HL7 messages
 
@@ -29,7 +24,7 @@ def query_raw(q, store, limit=-1):
         List of raw HL7 messages
     '''
     hits_raw = Query(
-        q,
+        query,
         store=store,
         limit=limit,
         fields="rawrecord"
@@ -177,8 +172,6 @@ def parse_msg(field_txt):
     Assumes field separator is a pipe ('|') and component separator is a
     caret ('^')
 
-    TODO: parsing dependent on msgs field separators
-
     Example:
         >>> msg = '...AL1|3|DA|1545^MORPHINE^99HIC|||20080828|||\n...'
         >>> parse_allergy_type = parse_msg("AL1.2")
@@ -226,10 +219,12 @@ def parse_msg_id(fields, msgs):
     '''
     Parse message ids from raw HL7 messages.
 
-    The message identifier is a concatination of each field, returning a
-    single string per message. The returned string has the syntax
-    <field_1>,<field_2>,... Its value should be unique because it is used to
-    join different data elements within a message.
+    The message identifier is a concatination of each field value, which must
+    be a single value for each message (i.e. the field must be for a segment
+    only is found once in a message). Returns a single string per message.
+    The returned string has the syntax <field_1>,<field_2>,... Its value must
+    be unique because it is used to join different data elements within a
+    message.
 
     Example:
         >>> get_msg_id(msgs)
@@ -248,8 +243,7 @@ def parse_msg_id(fields, msgs):
         itertools.repeat(msgs)
     ))
 
-    # each message identifier must be a single value per message
-    # TODO: too restrictive?
+    # NOTE: too restrictive?
     is_field_single_ids = (
         [all([len(ids) == 1 for ids in field]) for field in parsed_fields]
     )
@@ -349,7 +343,7 @@ def to_df(lst, field_txt):
     df["msg_id"] = df.index
     df = pd.melt(df, id_vars=["msg_id"])
     df.rename(
-        columns = {
+        columns={
             "variable": "seg",
             "value": field_txt
         },
@@ -377,7 +371,6 @@ def join_dfs(dfs):
 
 def main(id_fields, report_fields, msgs):
     report_field_segs = [re.match('\w*', field).group() for field in report_fields]
-
     if len(set(report_field_segs)) != 1:
         raise RuntimeError("Reported fields must be from the same segment")
 

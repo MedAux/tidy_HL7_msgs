@@ -242,13 +242,25 @@ def parse_msg_id(fields, msgs):
     Returns:
         List(string)
     '''
-    fields_parsed = list(map(
+    parsed_fields = list(map(
         parse_msgs,
         fields,
         itertools.repeat(msgs)
     ))
 
-    concatted = concat(fields_parsed)
+    # each message identifier must be a single value per message
+    # TODO: too restrictive?
+    is_field_single_ids = (
+        [all([len(ids) == 1 for ids in field]) for field in parsed_fields]
+    )
+    if not all(is_field_single_ids):
+        raise RuntimeError(
+            "One or more ID fields have multiple values per message: {fields}. ".format(
+                fields=", ".join(itertools.compress(fields, is_field_single_ids))
+            )
+        )
+
+    concatted = concat(parsed_fields)
 
     if len(set(concatted)) != len(msgs):
         raise RuntimeError("Messages IDs are not unique")

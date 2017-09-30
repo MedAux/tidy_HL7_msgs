@@ -41,8 +41,11 @@ def test_parse_msg_ids():
         test_data.msg_ids
     )
 
-    non_unique_msg_ids = test_data.msgs + [test_data.msgs[0]]
+    # field w/ multiple segments and therefore multiple values
+    with pytest.raises(RuntimeError):
+        parse_msg_id(['AL1.1.1'], test_data.msg_ids)
 
+    non_unique_msg_ids = test_data.msgs + [test_data.msgs[0]]
     with pytest.raises(RuntimeError):
         parse_msg_id(['PID.3.4', 'PID.3.1', 'PID.18.1'], non_unique_msg_ids)
 

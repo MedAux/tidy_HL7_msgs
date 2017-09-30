@@ -370,6 +370,25 @@ def join_dfs(dfs):
         return join_dfs(dfs_to_join)
 
 def main(id_fields, report_fields, msgs):
+    '''
+    Parse and tidy fields from HL7 messages
+
+    Args:
+        id_fields: list(string)
+            Fields to uniquely identify a message. Fields can be from
+            different message segments, but each field must return in one
+            value per message.
+
+        report_fields: list(string)
+            Fields to report.  Fields must be from the same segments.
+
+        msgs: list(string)
+            List of HL7 messages.
+
+    Returns:
+        A pandas dataframe, whose rows are message segments. Columns are
+        message id fields, segment number, and reported fields.
+    '''
     report_field_segs = [re.match('\w*', field).group() for field in report_fields]
     if len(set(report_field_segs)) != 1:
         raise RuntimeError("Reported fields must be from the same segment")

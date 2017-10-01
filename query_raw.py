@@ -369,18 +369,50 @@ def join_dfs(dfs):
         dfs_to_join.append(df_join)
         return join_dfs(dfs_to_join)
 
+def to_iter(fields):
+    '''
+    Converts object to iterator
+
+    Args:
+        Fields: iterable
+
+    Returns:
+        An iterator
+
+    Raises:
+        TypeError: field must not be a string
+        TypeError: field must be converted to an iterator
+    '''
+    error_msg = 'Field(s) must a list-like iterator or able to be converted to one'
+
+    if isinstance(fields, str):
+        raise TypeError(error_msg)
+
+    try:
+        fields_iter = iter(fields)
+    except TypeError:
+        raise TypeError(error_msg)
+
+    return fields_iter
+
 def main(id_fields, report_fields, msgs):
     '''
     Parse and tidy fields from HL7 messages
 
     Args:
-        id_fields: list(string)
+        id_fields: list-like iterator or able to be converted to one
             Fields to uniquely identify a message. Fields can be from
             different message segments, but each field must return in one
-            value per message.
+            value per message.  
+            
+            If argument is a dict-like, its keys must be HL7 field(s) to
+            parse and values will be column names for the returned dataframe.
 
-        report_fields: list(string)
+        report_fields: list-like iterator able to be converted to one
             Fields to report.  Fields must be from the same segments.
+
+            If argument is dict-like, its keys must be HL7 field(s) to
+            parse and values will be column names for the returned dataframe.
 
         msgs: list(string)
             List of HL7 messages.
@@ -394,26 +426,31 @@ def main(id_fields, report_fields, msgs):
         raise RuntimeError("Reported fields must be from the same segment")
 
     parsed_report_fields = map(
+
+    id_fields_iter = to_iter(id_fields)
+    report_fields_iter = to_iter(report_fields)
+
+    msg_ids = parse_msg_id(id_fields_iter, msgs)
+
+    report_fields_vals = map(
         parse_msgs,
-        report_fields,
+        report_fields_iter,
         itertools.repeat(msgs)
     )
 
-    msg_ids = parse_msg_id(id_fields, msgs)
-
-    report_fields_w_ids = map(
+    report_fields_vals_w_ids = map(
         zip_msg_ids,
-        parsed_report_fields,
+        report_fields_vals,
         itertools.repeat(msg_ids)
     )
 
-    field_dfs = list(map(
+    dfs = list(map(
         to_df,
-        report_fields_w_ids,
+        report_fields_vals_w_ids,
         report_fields
     ))
 
-    df = join_dfs(field_dfs)
+    df = join_dfs(dfs)
 
     df.dropna(
         axis=0,

@@ -395,6 +395,11 @@ def to_iter(fields):
 
     return fields_iter
 
+def check_segs_identical(fields):
+    segs = [re.match('\w*', field).group() for field in fields]
+    if len(set(segs)) != 1:
+        raise RuntimeError("All fields must be from the same segment")
+
 def main(id_fields, report_fields, msgs):
     '''
     Parse and tidy fields from HL7 messages
@@ -421,11 +426,8 @@ def main(id_fields, report_fields, msgs):
         A pandas dataframe, whose rows are message segments. Columns are
         message id fields, segment number, and reported fields.
     '''
-    report_field_segs = [re.match('\w*', field).group() for field in report_fields]
-    if len(set(report_field_segs)) != 1:
-        raise RuntimeError("Reported fields must be from the same segment")
 
-    parsed_report_fields = map(
+    check_segs_identical(report_fields)
 
     id_fields_iter = to_iter(id_fields)
     report_fields_iter = to_iter(report_fields)

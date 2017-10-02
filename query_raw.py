@@ -1,5 +1,5 @@
 # TODO
-# - input args as dictionary of field:col_name
+# - check...() accepted style?
 # - flexible parsing using msg separators
 
 # TO TEST:
@@ -247,6 +247,7 @@ def parse_msg_id(fields, msgs):
     is_field_single_ids = (
         [all([len(ids) == 1 for ids in field]) for field in parsed_fields]
     )
+
     if not all(is_field_single_ids):
         raise RuntimeError(
             "One or more ID fields have multiple values per message: {fields}. ".format(

@@ -163,9 +163,11 @@ def parse_msgs(field_txt, msgs):
     Returns:
         List of List(string)
     '''
-    return list(map(parse_msg(field_txt), msgs))
+    field = parse_field_txt(field_txt)
+    parser = get_parser(field)
+    return list(map(parser, msgs))
 
-def parse_msg(field_txt):
+def get_parser(field):
     '''
     Higher-order function to parse a field from an HL7 message
 
@@ -174,11 +176,11 @@ def parse_msg(field_txt):
 
     Example:
         >>> msg = '...AL1|3|DA|1545^MORPHINE^99HIC|||20080828|||\n...'
-        >>> parse_allergy_type = parse_msg("AL1.2")
+        >>> parse_allergy_type = get_parser("AL1.2")
         >>> parse_allergy_type(msg)
         >>> ['DA']
 
-        >>> parse_allergy_code_text = parse_msg("AL1.3.2")
+        >>> parse_allergy_code_text = get_parser("AL1.3.2")
         >>> parse_allergy_code_text(msg)
         >>> ['MORPHINE']
 
@@ -197,8 +199,6 @@ def parse_msg(field_txt):
     Returns:
         Function to parse HL7 message at the given location
     '''
-    field = parse_field_txt(field_txt)
-
     def parser(msg):
         segs = re.findall(field['seg'] + '\|.*(?=\\n)', msg)
         data = []

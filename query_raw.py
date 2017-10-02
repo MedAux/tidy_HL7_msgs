@@ -54,9 +54,9 @@ def check_nested_lens_equal(lst1, lst2):
     for i in range(len(lst1)):
         if len(lst1[i]) != len(lst2[i]):
             raise RuntimeError(
-                "Length of lists are not equal.  Lists of unequal lengths "
-                "invalidate the relationship between data elements of the zipped"
-                "lists "
+                "Length of nested lists are not equal.  Nest lists of unequal "
+                "lengths invalidate the relationship between data elements of "
+                "the nested lists"
             )
 
 def flatten(lst):

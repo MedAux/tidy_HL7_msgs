@@ -383,17 +383,14 @@ def to_iter(fields):
         TypeError: field must not be a string
         TypeError: field must be converted to an iterator
     '''
-    error_msg = 'Field(s) must a list-like iterator or able to be converted to one'
-
+    error_msg = 'Fields must be a list-like iterator or able to be converted to one (fields: {fields})'.format(fields=fields)
     if isinstance(fields, str):
         raise TypeError(error_msg)
-
-    try:
-        fields_iter = iter(fields)
-    except TypeError:
-        raise TypeError(error_msg)
-
-    return fields_iter
+    else:
+        try:
+            return iter(fields)
+        except TypeError as err:
+            raise TypeError(error_msg[:-1] + ", " + err.args[0] + ")") from None
 
 def are_segs_identical(fields):
     '''

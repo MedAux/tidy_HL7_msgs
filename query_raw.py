@@ -395,10 +395,24 @@ def to_iter(fields):
 
     return fields_iter
 
-def check_segs_identical(fields):
+def are_segs_identical(fields):
+    '''
+    Check if all fields have identical segments
+
+    Example:
+    >>> are_segs_identical(['DG1.3.1', 'DG1.3.2', 'DG1.6'])
+    True
+    >>> are_segs_identical(['DG1.3.1', 'DG1.3.2', 'PID.3.4'])
+    False
+
+    Args:
+        fields: list(string)
+
+    Returns:
+        Boolean
+    '''
     segs = [re.match('\w*', field).group() for field in fields]
-    if len(set(segs)) != 1:
-        raise RuntimeError("All fields must be from the same segment")
+    return len(set(segs)) == 1
 
 def main(id_fields, report_fields, msgs):
     '''
@@ -426,8 +440,8 @@ def main(id_fields, report_fields, msgs):
         A pandas dataframe, whose rows are message segments. Columns are
         message id fields, segment number, and reported fields.
     '''
-
-    check_segs_identical(report_fields)
+    if not are_segs_identical(report_fields):
+        raise RuntimeError("All fields must be from the same segment")
 
     id_fields_iter = to_iter(id_fields)
     report_fields_iter = to_iter(report_fields)

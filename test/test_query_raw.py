@@ -74,9 +74,30 @@ def test_parse_field_txt():
         parse_field_txt('DG1.2.3.4')
 
 def test_main():
+    id_fields_lst = ['PID.3.4', 'PID.3.1', 'PID.18.1']
+    report_fields_lst = ['DG1.3.1', 'DG1.3.2', 'DG1.6', 'DG1.15'],
+
+    id_fields_dict = {
+        'PID.3.4': 'id_field_1', 
+        'PID.3.1': 'id_field_2', 
+        'PID.18.1': 'id_field_3'
+    }
+
+    report_fields_dict = {
+        'DG1.3.1': 'report_field_1',
+        'DG1.3.2': 'report_field_2',
+        'DG1.6': 'report_field_3',
+        'DG1.15': 'report_field_4'
+    }
+
+    # df = main(
+    #     id_fields_lst, 
+    #     report_fields_lst, 
+    #     test_data.msgs
+    # )
     df = main(
-        ['PID.3.4', 'PID.3.1', 'PID.18.1'],
-        ['DG1.3.1', 'DG1.3.2', 'DG1.6', 'DG1.15'],
+        id_fields_dict, 
+        report_fields_dict, 
         test_data.msgs
     )
     print('\n')

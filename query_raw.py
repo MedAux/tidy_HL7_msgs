@@ -465,4 +465,11 @@ def main(id_fields, report_fields, msgs):
     id_cols.columns = id_fields
     df_w_id_cols = pd.concat([id_cols, df], axis=1).drop('msg_id', axis=1)
 
+    # TODO: more specific exception handling?
+    try:
+        df_w_id_cols.rename(columns=id_fields, inplace=True)
+        df_w_id_cols.rename(columns=report_fields, inplace=True)
+    except Exception:
+        pass
+
     return df_w_id_cols

@@ -110,7 +110,7 @@ def test_main():
     print('\n')
     print(df)
 
-    with pytest.raises(RuntimeError):
+    with pytest.raises(ValueError):
         main(
             ['PID.3.4', 'PID.3.1', 'PID.18.1'],
             ['DG1.3.1', 'DG1.3.2', 'AL.15'],        # non-identical segs

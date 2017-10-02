@@ -438,7 +438,7 @@ def main(id_fields, report_fields, msgs):
         message id fields, segment number, and reported fields.
     '''
     if not are_segs_identical(report_fields):
-        raise RuntimeError("All fields must be from the same segment")
+        raise ValueError("All fields must be from the same segment")
 
     id_fields_iter = to_iter(id_fields)
     report_fields_iter = to_iter(report_fields)

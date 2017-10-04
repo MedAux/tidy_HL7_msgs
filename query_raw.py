@@ -455,7 +455,7 @@ def are_segs_identical(fields):
     segs = [re.match('\w*', field).group() for field in fields]
     return len(set(segs)) == 1
 
-def tidy_HL7_msg_segs(id_fields, report_fields, msgs):
+def tidy_HL7_msg_segs(msg_id_fields, report_fields, msgs):
     '''
     Parse and tidy fields from HL7 messages
 
@@ -489,7 +489,7 @@ def tidy_HL7_msg_segs(id_fields, report_fields, msgs):
     if not are_segs_identical(report_fields):
         raise ValueError("All fields must be from the same segment")
 
-    id_fields_iter = to_iter(id_fields)
+    id_fields_iter = to_iter(msg_id_fields)
     report_fields_iter = to_iter(report_fields)
 
     msg_ids = parse_msg_id(id_fields_iter, msgs)
@@ -522,12 +522,12 @@ def tidy_HL7_msg_segs(id_fields, report_fields, msgs):
     )
 
     id_cols = df['msg_id'].str.split(",", expand=True)
-    id_cols.columns = id_fields
+    id_cols.columns = msg_id_fields
     df_w_id_cols = pd.concat([id_cols, df], axis=1).drop('msg_id', axis=1)
 
     # TODO: more specific exception handling?
     try:
-        df_w_id_cols.rename(columns=id_fields, inplace=True)
+        df_w_id_cols.rename(columns=msg_id_fields, inplace=True)
         df_w_id_cols.rename(columns=report_fields, inplace=True)
     except Exception:
         pass

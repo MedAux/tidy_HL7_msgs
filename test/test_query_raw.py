@@ -84,8 +84,10 @@ def test_tidy_HL7_msg_segs():
     id_fields_lst = ['PID.3.4', 'PID.3.1', 'PID.18.1']
     report_fields_lst = ['DG1.3.1', 'DG1.3.2', 'DG1.6', 'DG1.15'],
 
+    # TODO: why is error throw if more than three id_fields?
     id_fields_dict = {
-        'PID.3.4': 'id_field_1', 
+        'MSH.7': 'msg_time',
+        # 'PID.3.4': 'id_field_1', 
         'PID.3.1': 'id_field_2', 
         'PID.18.1': 'id_field_3'
     }

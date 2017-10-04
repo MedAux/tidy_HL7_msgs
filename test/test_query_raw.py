@@ -80,7 +80,7 @@ def test_are_segs_identical():
     assert are_segs_identical(identical_segs) == True
     assert are_segs_identical(non_identical_segs) == False
 
-def test_main():
+def test_tidy_HL7_msg_segs():
     id_fields_lst = ['PID.3.4', 'PID.3.1', 'PID.18.1']
     report_fields_lst = ['DG1.3.1', 'DG1.3.2', 'DG1.6', 'DG1.15'],
 
@@ -97,12 +97,12 @@ def test_main():
         'DG1.15': 'report_field_4'
     }
 
-    # df = main(
+    # df = tidy_HL7_msg_segs(
     #     id_fields_lst, 
     #     report_fields_lst, 
     #     test_data.msgs
     # )
-    df = main(
+    df = tidy_HL7_msg_segs(
         id_fields_dict, 
         report_fields_dict, 
         test_data.msgs
@@ -111,7 +111,7 @@ def test_main():
     print(df)
 
     with pytest.raises(ValueError):
-        main(
+        tidy_HL7_msg_segs(
             ['PID.3.4', 'PID.3.1', 'PID.18.1'],
             ['DG1.3.1', 'DG1.3.2', 'AL.15'],        # non-identical segs
             test_data.msgs

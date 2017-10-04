@@ -455,7 +455,7 @@ def are_segs_identical(fields):
     segs = [re.match('\w*', field).group() for field in fields]
     return len(set(segs)) == 1
 
-def main(id_fields, report_fields, msgs):
+def tidy_HL7_msg_segs(id_fields, report_fields, msgs):
     '''
     Parse and tidy fields from HL7 messages
 

@@ -1,6 +1,9 @@
+# pylint: disable = C0103, R1705, C0200, W1401, W0511
+
 # TODO
 # - check...() accepted style?
 # - flexible parsing using msg separators
+# - refactor query_raw() to streaming
 
 # TO TEST:
 # - run 'pytest -s' to disable capturing of stdout
@@ -36,6 +39,15 @@ def query_raw(query, store, limit=-1):
 def check_lens_equal(*args):
     '''
     Ensure the length of lists are equal
+
+    Args:
+        *args: one or more lists
+
+    Returns:
+        None
+
+    Raises:
+        RuntimeError if lists are unequal lengths
     '''
     lengths = [len(x) for x in args]
     are_all_equal = len(set(lengths)) == 1
@@ -48,7 +60,18 @@ def check_lens_equal(*args):
 
 def check_nested_lens_equal(lst1, lst2):
     '''
-    Ensure the lengths of nested lists are equal
+    Ensure the lengths of nested lists are equal to their counterpart
+
+    Args:
+        lst1: list
+        lst2: list
+
+    Returns:
+        None
+
+    Raises:
+        RuntimeError if nested lists not do equal the length of their
+        counterpart
     '''
     check_lens_equal(lst1, lst2)
     for i in range(len(lst1)):
@@ -97,11 +120,11 @@ def zip_nested(lst1, lst2):
         [[('a', 'w'), ('b', 'x')], [('c', 'y'), ('d', 'z')]]
 
     Args:
-        lst1: list
-        lst2: list
+        lst1: list(string)
+        lst2: list(string)
 
     Returns:
-        List of nested lists whose elements are tuples.
+        list(list(tuple))
     '''
     check_nested_lens_equal(lst1, lst2)
     return [list(zip(lst1[i], lst2[i])) for i in range(len(lst1))]
@@ -118,10 +141,10 @@ def concat(lsts):
         ['a', 'b']
 
     Args:
-        lsts: list of lists(strings)
+        lsts: list(list(list(string)))
 
     Returns:
-        List(strings)
+        list(string)
     '''
     if len(lsts) == 1 or not bool(lsts[1]):
         # either a single parsed field or the appended field is empty, in which
@@ -150,18 +173,16 @@ def parse_msgs(field_txt, msgs):
 
     Args:
         field_txt: string
-            Field to parse
+            Field to parse. Must be a single location represented by a
+            segment, a component and an optional subcomponent. A period (".")
+            must separate segments, components, and subcomponents (ex.
+            "PR1.3" or "DG1.3.1")
 
-            Must be a single location represented by a segment, a component
-            and an optional subcomponent. A period (".") must separate
-            segments, components, and subcomponents (ex. "PR1.3" or
-            "DG1.3.1")
-
-        msgs: list
-            List of message to parse
+        msgs: list(string)
+            Messages to parse
 
     Returns:
-        List of List(string)
+        list(list(string))
     '''
     field = parse_field_txt(field_txt)
     parser = get_parser(field)
@@ -189,15 +210,11 @@ def get_parser(field):
         >>> ['MORPHINE', 'CODEINE']
 
     Args:
-        field_txt: string
-            Field to parse
-
-            Must be a single location represented by a segment and 1 or 2
-            subsequent components. A period (".") must separate segments and
-            components (ex. "PR1.3" or "DG1.3.1")
+        field_txt: dict
+            Field attributes and values
 
     Returns:
-        Function to parse HL7 message at the given location
+        Function to parse HL7 message at a given field
     '''
     def parser(msg):
         segs = re.findall(field['seg'] + '\|.*(?=\\n)', msg)
@@ -217,7 +234,7 @@ def get_parser(field):
 
 def parse_msg_id(fields, msgs):
     '''
-    Parse message ids from raw HL7 messages.
+    Parse message IDs from raw HL7 messages.
 
     The message identifier is a concatination of each field value, which must
     be a single value for each message (i.e. the field must be for a segment
@@ -231,11 +248,15 @@ def parse_msg_id(fields, msgs):
         ['Facility1,68188,1719801063', Facility2,588229,1721309017', ... ]
 
     Args:
-        fields: List(string)
-        msgs: List(string)
+        fields: list(string)
+        msgs: list(string)
 
     Returns:
-        List(string)
+        list(string)
+
+    Raises:
+        RuntimeError if a field has multiple values
+        RuntimeError if message IDs are not unique
     '''
     parsed_fields = list(map(
         parse_msgs,
@@ -264,7 +285,7 @@ def parse_msg_id(fields, msgs):
 
 def parse_field_txt(field_txt):
     '''
-    Parse the string value of an HL7 message field
+    Parse literal HL7 message field (i.e. 'DG1.3.1')
 
     Examples:
         >>> parse_field_txt('PR1.3')
@@ -279,6 +300,9 @@ def parse_field_txt(field_txt):
 
     Returns:
         Dictionary of field attributes and parsed elements
+
+    Raises:
+        ValueError if field syntax is incorrect
     '''
     field = {}
     field['depth'] = len(field_txt.split("."))
@@ -304,22 +328,21 @@ def parse_field_txt(field_txt):
 
 def zip_msg_ids(lst, msg_ids):
     '''
-    Zip but ensure list lengths are equal
+    Zip after checking list lengths are equal
+
+    Args:
+        lst: list
+        msg_ids: list(string)
+
+    Returns:
+        list(tuple)
     '''
     check_lens_equal(msg_ids, lst)
     return list(zip(msg_ids, lst))
 
 def to_df(lst, field_txt):
     '''
-    Convert parsed values to dataframe
-
-    Args:
-        lst: list
-            List of tuples, where the first element is the message ID and the
-            second element is a list of parsed values
-
-        field_txt: string
-            Field name
+    Convert list to dataframe
 
     Example:
         >>> to_df(
@@ -332,6 +355,16 @@ def to_df(lst, field_txt):
         2  msg_id1  seg_1      None
         3  msg_id2  seg_1      val2
 
+    Args:
+        lst: list
+            List of tuples, where the first element is the message ID and the
+            second element is a list of parsed values
+
+        field_txt: string
+            Field name
+
+    Returns:
+        dataframe
     '''
     df = pd.DataFrame.from_dict(
         dict(lst),
@@ -354,7 +387,13 @@ def to_df(lst, field_txt):
 
 def join_dfs(dfs):
     '''
-    Join dataframes
+    Join a list of dataframes
+
+    Args:
+        dfs: list(dataframes)
+
+    Returns:
+        dataframe
     '''
     if len(dfs) == 1:
         return dfs[0]
@@ -372,19 +411,23 @@ def join_dfs(dfs):
 
 def to_iter(fields):
     '''
-    Converts object to iterator
+    Transforms object to iterator
 
     Args:
-        Fields: iterable
+        fields: iterable
 
     Returns:
-        An iterator
+        iterator
 
     Raises:
-        TypeError: field must not be a string
-        TypeError: field must be converted to an iterator
+        TypeError if fields is a string
+        TypeError if fields cannot be transformed to an iterator
     '''
-    error_msg = 'Fields must be a list-like iterator or able to be converted to one (fields: {fields})'.format(fields=fields)
+    error_msg = (
+        'Fields must be a list-like iterator or able to be converted '
+        'to one (fields: {fields})'.format(fields=fields)
+    )
+
     if isinstance(fields, str):
         raise TypeError(error_msg)
     else:
@@ -395,7 +438,7 @@ def to_iter(fields):
 
 def are_segs_identical(fields):
     '''
-    Check if all fields have identical segments
+    Check if all fields are from the same segment
 
     Example:
     >>> are_segs_identical(['DG1.3.1', 'DG1.3.2', 'DG1.6'])
@@ -407,7 +450,7 @@ def are_segs_identical(fields):
         fields: list(string)
 
     Returns:
-        Boolean
+        boolean
     '''
     segs = [re.match('\w*', field).group() for field in fields]
     return len(set(segs)) == 1
@@ -418,14 +461,16 @@ def main(id_fields, report_fields, msgs):
 
     Args:
         id_fields: list-like iterator or able to be converted to one
+
             Fields to uniquely identify a message. Fields can be from
             different message segments, but each field must return in one
-            value per message.  
-            
+            value per message.
+
             If argument is a dict-like, its keys must be HL7 field(s) to
             parse and values will be column names for the returned dataframe.
 
         report_fields: list-like iterator able to be converted to one
+
             Fields to report.  Fields must be from the same segments.
 
             If argument is dict-like, its keys must be HL7 field(s) to
@@ -435,8 +480,11 @@ def main(id_fields, report_fields, msgs):
             List of HL7 messages.
 
     Returns:
-        A pandas dataframe, whose rows are message segments. Columns are
+        Dataframe whose rows are message segments and whose columns are
         message id fields, segment number, and reported fields.
+
+    Raises:
+        ValueError if all fields are not from the same segment
     '''
     if not are_segs_identical(report_fields):
         raise ValueError("All fields must be from the same segment")

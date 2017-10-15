@@ -409,33 +409,6 @@ def join_dfs(dfs):
         dfs_to_join.append(df_join)
         return join_dfs(dfs_to_join)
 
-def to_iter(fields):
-    '''
-    Transforms object to iterator
-
-    Args:
-        fields: iterable
-
-    Returns:
-        iterator
-
-    Raises:
-        TypeError if fields is a string
-        TypeError if fields cannot be transformed to an iterator
-    '''
-    error_msg = (
-        'Fields must be a list-like iterator or able to be converted '
-        'to one (fields: {fields})'.format(fields=fields)
-    )
-
-    if isinstance(fields, str):
-        raise TypeError(error_msg)
-    else:
-        try:
-            return iter(fields)
-        except TypeError as err:
-            raise TypeError(error_msg[:-1] + ", " + err.args[0] + ")") from None
-
 def are_segs_identical(fields):
     '''
     Check if all fields are from the same segment
@@ -460,7 +433,7 @@ def tidy_HL7_msg_segs(msg_id_fields, report_fields, msgs):
     Parse and tidy fields from HL7 messages
 
     Args:
-        id_fields: list-like iterator or able to be converted to one
+        id_fields: list or able to be converted to one
 
             Fields to uniquely identify a message. Fields can be from
             different message segments, but each field must return in one
@@ -469,7 +442,7 @@ def tidy_HL7_msg_segs(msg_id_fields, report_fields, msgs):
             If argument is a dict-like, its keys must be HL7 field(s) to
             parse and values will be column names for the returned dataframe.
 
-        report_fields: list-like iterator able to be converted to one
+        report_fields: list or able to be converted to one
 
             Fields to report.  Fields must be from the same segments.
 
@@ -489,14 +462,11 @@ def tidy_HL7_msg_segs(msg_id_fields, report_fields, msgs):
     if not are_segs_identical(report_fields):
         raise ValueError("All fields must be from the same segment")
 
-    id_fields_iter = to_iter(msg_id_fields)
-    report_fields_iter = to_iter(report_fields)
-
-    msg_ids = parse_msg_id(id_fields_iter, msgs)
+    msg_ids = parse_msg_id(list(msg_id_fields), msgs)
 
     report_fields_vals = map(
         parse_msgs,
-        report_fields_iter,
+        list(report_fields),
         itertools.repeat(msgs)
     )
 

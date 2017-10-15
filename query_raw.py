@@ -133,11 +133,11 @@ def concat(lsts):
     Concatinate lists of strings
 
     Examples:
-        >>> concat([[['a', 'b']], [['y', 'z']], [['s', 't']]])
-        ['a,y,s', 'b,z,t']
+        >>> concat([[['a', 'y']], [['b', 'z']]])
+        ['a,b', 'y,z']
 
-        >>> concat([[['a', 'b']]])
-        ['a', 'b']
+        >>> concat([[['a', 'w']], [['b', 'x']], [['c', 'y']], [['d', 'z']]])
+        ['a,b,c,d', 'w,x,y,z']
 
     Args:
         lsts: list(list(list(string)))
@@ -145,15 +145,16 @@ def concat(lsts):
     Returns:
         list(string)
     '''
-    if len(lsts) == 1 or not bool(lsts[1]):
-        # either a single parsed field or the appended field is empty, in which
-        # case the first element is the concatinated lists
-        return flatten(lsts[0])
-    else:
-        zipped = zip_nested(lsts[0], lsts[1])
-        concatted = [[",".join(pair) for pair in sublist] for sublist in zipped]
-        to_concat = [concatted, flatten(lsts[2:])]
-        return concat(to_concat)
+    lsts = [flatten(lst) for lst in lsts]
+
+    lst_lens = [len(lst) for lst in lsts]
+    assert len(set(lst_lens)) == 1, "Message ID fields are unequal length"
+
+    concatted = []
+    for i in range(len(lsts[0])):
+        concatted.append([",".join(el[i] for el in lsts)])
+
+    return flatten(concatted)
 
 def parse_msgs(field_txt, msgs):
     '''

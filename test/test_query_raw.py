@@ -31,11 +31,14 @@ def test_zip_nested():
         [[('a', 'w'), ('b', 'x')], [('c', 'y'), ('d', 'z')]]
     )
 
-def test_concat_fields():
+def test_concat():
     assert concat([[['a', 'b']]]) == ['a', 'b']
     assert concat([[['a', 'b']], [['y', 'z']], [['s', 't']]]) == (
         ['a,y,s', 'b,z,t']
     )
+
+    with pytest.raises(AssertionError):
+        concat([[['a', 'b']], [['x', 'y', 'z']]])
 
 def test_parse_msgs():
     assert parse_msgs('DG1.6', test_data.msgs) == test_data.DG_1_6

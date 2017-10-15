@@ -1,7 +1,6 @@
 # pylint: disable = C0103, R1705, C0200, W1401, W0511
 
 # TODO
-# - flexible parsing using msg separators
 # - refactor query_raw() to streaming
 # - find anonymized HL7 messages for testing
 
@@ -218,15 +217,20 @@ def get_parser(field):
         Function to parse HL7 message at a given field
     '''
     def parser(msg):
-        segs = re.findall(field['seg'] + '\|.*(?=\\n)', msg)
+        field_sep = list(msg)[3]
+        comp_sep = list(msg)[4]
+
+        seg_regex = field['seg'] + re.escape(field_sep) + '.*(?=\\n)'
+        segs = re.findall(seg_regex, msg)
+
         data = []
         for seg in segs:
-            comp = seg.split("|")[field['comp']]
+            comp = seg.split(field_sep)[field['comp']]
             if field['depth'] == 2:
                 datum = comp
             else:
                 try:
-                    datum = comp.split("^")[field['subcomp']]
+                    datum = comp.split(comp_sep)[field['subcomp']]
                 except IndexError:
                     datum = np.nan
             data.append(datum)

@@ -120,6 +120,9 @@ def test_tidy_HL7_msg_segs():
     print('\n')
     print(df)
 
+    col_names = list(id_fields_dict.values()) + list(report_fields_dict.values())
+    assert all([col_name in df.columns.values for col_name in col_names]) is True
+
     # segments of report fields not the same
     with pytest.raises(ValueError):
         tidy_HL7_msg_segs(

@@ -463,28 +463,34 @@ def tidy_HL7_msg_segs(msg_id_fields, report_fields, msgs):
     if not are_segs_identical(report_fields):
         raise ValueError("All fields must be from the same segment")
 
+    # parse message ids
     msg_ids = parse_msg_id(list(msg_id_fields), msgs)
 
+    # parse report fields
     report_fields_vals = map(
         parse_msgs,
         list(report_fields),
         itertools.repeat(msgs)
     )
 
-    report_fields_vals_w_ids = map(
+    # zip report field values and message ids
+    report_fields_vals_w_msg_ids = map(
         zip_msg_ids,
         report_fields_vals,
         itertools.repeat(msg_ids)
     )
 
+    # convert to dataframes
     dfs = list(map(
         to_df,
-        report_fields_vals_w_ids,
+        report_fields_vals_w_msg_ids,
         report_fields
     ))
 
+    # join dataframes
     df = join_dfs(dfs)
 
+    # remove segments lacking data
     df.dropna(
         axis=0,
         how='all',
@@ -492,6 +498,9 @@ def tidy_HL7_msg_segs(msg_id_fields, report_fields, msgs):
         inplace=True
     )
 
+    # split concatted fields used for a message id into individual columns;
+    # combine this id dataframe with that for reported fields, dropping
+    # old (i.e. concatted) message id column
     id_cols = df['msg_id'].str.split(",", expand=True)
     id_cols.columns = msg_id_fields
     df_w_id_cols = pd.concat([id_cols, df], axis=1).drop('msg_id', axis=1)

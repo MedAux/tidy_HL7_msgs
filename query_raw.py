@@ -11,6 +11,7 @@
 import re
 import itertools
 import pandas as pd
+import numpy as np
 
 def query_raw(query, store, limit=-1):
     '''
@@ -227,7 +228,7 @@ def get_parser(field):
                 try:
                     datum = comp.split("^")[field['subcomp']]
                 except IndexError:
-                    datum = ''
+                    datum = np.nan
             data.append(datum)
         return data
     return parser

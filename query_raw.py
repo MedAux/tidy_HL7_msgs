@@ -1,12 +1,12 @@
 # pylint: disable = C0103, R1705, C0200, W1401, W0511
 
 # TODO
-# - check...() accepted style?
 # - flexible parsing using msg separators
 # - refactor query_raw() to streaming
+# - find anonymized HL7 messages for testing
 
 # TO TEST:
-# - run 'pytest -s' to disable capturing of stdout
+# - run 'pytest -s' to disable capturing of stdout to print df
 
 import re
 import itertools

@@ -82,21 +82,26 @@ def test_parse_field_txt():
 
 def test_are_segs_identical():
     identical_segs = ['DG1.3.1', 'DG1.3.2', 'DG1.6']
-    non_identical_segs = ['DG1.3.1', 'DG1.3.2', 'PID.3.4']
+    assert are_segs_identical(identical_segs) is True
 
-    assert are_segs_identical(identical_segs) == True
-    assert are_segs_identical(non_identical_segs) == False
+    non_identical_segs = ['DG1.3.1', 'DG1.3.2', 'PID.3.4']
+    assert are_segs_identical(non_identical_segs) is False
 
 def test_tidy_HL7_msg_segs():
-    id_fields_lst = ['PID.3.4', 'PID.3.1', 'PID.18.1']
-    report_fields_lst = ['DG1.3.1', 'DG1.3.2', 'DG1.6', 'DG1.15'],
+    # id_fields_lst = ['PID.3.4', 'PID.3.1', 'PID.18.1']
+    # report_fields_lst = ['DG1.3.1', 'DG1.3.2', 'DG1.6', 'DG1.15'],
 
-    # TODO: why is error throw if more than three id_fields?
+    # df = tidy_HL7_msg_segs(
+    #     id_fields_lst,
+    #     report_fields_lst,
+    #     test_data.msgs
+    # )
+
     id_fields_dict = {
-        'MSH.7': 'msg_time',
-        # 'PID.3.4': 'id_field_1', 
-        'PID.3.1': 'id_field_2', 
-        'PID.18.1': 'id_field_3'
+        'MSH.7': 'id_field_1',
+        'PID.3.1': 'id_field_2',
+        'PID.3.4': 'id_field_3',
+        'PID.18.1': 'id_field_4'
     }
 
     report_fields_dict = {
@@ -106,22 +111,19 @@ def test_tidy_HL7_msg_segs():
         'DG1.15': 'report_field_4'
     }
 
-    # df = tidy_HL7_msg_segs(
-    #     id_fields_lst, 
-    #     report_fields_lst, 
-    #     test_data.msgs
-    # )
     df = tidy_HL7_msg_segs(
-        id_fields_dict, 
-        report_fields_dict, 
+        id_fields_dict,
+        report_fields_dict,
         test_data.msgs
     )
+
     print('\n')
     print(df)
 
+    # segments of report fields not the same
     with pytest.raises(ValueError):
         tidy_HL7_msg_segs(
             ['PID.3.4', 'PID.3.1', 'PID.18.1'],
-            ['DG1.3.1', 'DG1.3.2', 'AL.15'],        # non-identical segs
+            ['DG1.3.1', 'DG1.3.2', 'AL.15'],
             test_data.msgs
         )

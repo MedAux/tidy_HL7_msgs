@@ -36,51 +36,50 @@ def query_raw(query, store, limit=-1):
     msgs = re.findall(r'(?si)<OriginalHL7>(.*?)</OriginalHL7>', hits_raw)
     return msgs
 
-def check_lens_equal(*args):
+def are_lens_equal(*args):
     '''
-    Ensure the length of lists are equal
+    Are lengths equal
+
+    Example:
+        >>> are_lens_equal([1, 2], [1, 2])
+        True
+        >>> are_lens_equal([1, 2], [1, 2, 3])
+        False
 
     Args:
         *args: one or more lists
 
     Returns:
-        None
-
-    Raises:
-        RuntimeError if lists are unequal lengths
+        Boolean
     '''
-    lengths = [len(x) for x in args]
-    are_all_equal = len(set(lengths)) == 1
-    if not are_all_equal:
-        raise RuntimeError(
-            "Length of lists are not equal.  Lists of unequal lengths "
-            "invalidate the relationship between data elements of the zipped"
-            "lists "
-        )
+    lens = [len(x) for x in args]
+    return len(set(lens)) == 1
 
-def check_nested_lens_equal(lst1, lst2):
+def are_nested_lens_equal(lst1, lst2):
     '''
-    Ensure the lengths of nested lists are equal to their counterpart
+    Are nested lengths equal
 
+    Example:
+        >>> are_nested_lens_equal(
+        ...     [[1, 2], [1, 2], [1, 2]],
+        ...     [[1, 2], [1, 2], [1, 2]]
+        ... )
+        True
+        >>> are_nested_lens_equal(
+        ...     [[1, 2], [1, 2], [1, 2]],
+        ...     [[1, 2], [1, 2], [1, 2, 3]]
+        ... )
+        >>> are_nested_lens_equal(
+        False
     Args:
         lst1: list
         lst2: list
 
     Returns:
-        None
-
-    Raises:
-        RuntimeError if nested lists not do equal the length of their
-        counterpart
+        Boolean
     '''
-    check_lens_equal(lst1, lst2)
-    for i in range(len(lst1)):
-        if len(lst1[i]) != len(lst2[i]):
-            raise RuntimeError(
-                "Length of nested lists are not equal.  Nest lists of unequal "
-                "lengths invalidate the relationship between data elements of "
-                "the nested lists"
-            )
+    assert are_lens_equal(lst1, lst2), "List lengths are not equal"
+    return all([len(lst1[i]) == len(lst2[i]) for i in range(len(lst1))]) is True
 
 def flatten(lst):
     '''
@@ -126,7 +125,7 @@ def zip_nested(lst1, lst2):
     Returns:
         list(list(tuple))
     '''
-    check_nested_lens_equal(lst1, lst2)
+    assert are_nested_lens_equal(lst1, lst2), "Nested list lengths are not equal"
     return [list(zip(lst1[i], lst2[i])) for i in range(len(lst1))]
 
 def concat(lsts):
@@ -337,7 +336,7 @@ def zip_msg_ids(lst, msg_ids):
     Returns:
         list(tuple)
     '''
-    check_lens_equal(msg_ids, lst)
+    assert are_lens_equal(msg_ids, lst), "List lengths are not equal"
     return list(zip(msg_ids, lst))
 
 def to_df(lst, field_txt):

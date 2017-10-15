@@ -2,16 +2,20 @@ import pytest
 from query_raw.query_raw import *
 from query_raw.test import test_data
 
-def test_lst_lens_equal():
-    with pytest.raises(RuntimeError):
-        check_lens_equal([1, 2, 3], [1, 2, 3, 4])
+def test_are_lens_equal():
+    assert are_lens_equal([1, 2, 3], [1, 2, 3]) is True
+    assert are_lens_equal([1, 2, 3], [1, 2, 3, 4]) is False
 
-def test_nested_lst_lens_equal():
-    with pytest.raises(RuntimeError):
-        check_nested_lens_equal(
-            [[1], [2], [3, 4]],
-            [[1], [2], [3, 4, 5]]
-        )
+def test_are_nested_lens_equal():
+    assert are_nested_lens_equal(
+        [[1], [1], [1]],
+        [[1], [1], [1]]
+    ) is True
+
+    assert are_nested_lens_equal(
+        [[1], [1], [1]],
+        [[1], [1], [2, 2]]
+    ) is False
 
 def test_flatten():
     assert flatten([[1, 2], [3, 4]]) == [1, 2, 3, 4]

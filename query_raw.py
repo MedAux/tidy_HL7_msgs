@@ -200,6 +200,13 @@ def concat(lsts):
 
     return flatten(concatted)
 
+def parse_raw(hits):
+    '''
+    Parse HL7 message from IMAT hits
+    '''
+    msg = re.findall(r'(?si)<OriginalHL7>(.*?)</OriginalHL7>', hits)
+    return msg[0]
+
 def parse_msgs(field_txt, msgs):
     '''
     Parse messages for a given field

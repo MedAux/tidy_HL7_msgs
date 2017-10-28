@@ -1,3 +1,5 @@
+# pylint: disable=W0614,C0111
+
 import pytest
 from query_raw.query_raw import *
 from query_raw.test import test_data
@@ -87,7 +89,7 @@ def test_are_segs_identical():
     non_identical_segs = ['DG1.3.1', 'DG1.3.2', 'PID.3.4']
     assert are_segs_identical(non_identical_segs) is False
 
-def test_tidy_HL7_msg_segs():
+def test_tidy_segs():
     # id_fields_lst = ['PID.3.4', 'PID.3.1', 'PID.18.1']
     # report_fields_lst = ['DG1.3.1', 'DG1.3.2', 'DG1.6', 'DG1.15'],
 
@@ -111,7 +113,7 @@ def test_tidy_HL7_msg_segs():
         'DG1.15': 'report_field_4'
     }
 
-    df = tidy_HL7_msg_segs(
+    df = tidy_segs(
         id_fields_dict,
         report_fields_dict,
         test_data.msgs
@@ -125,7 +127,7 @@ def test_tidy_HL7_msg_segs():
 
     # segments of report fields not the same
     with pytest.raises(ValueError):
-        tidy_HL7_msg_segs(
+        tidy_segs(
             ['PID.3.4', 'PID.3.1', 'PID.18.1'],
             ['DG1.3.1', 'DG1.3.2', 'AL.15'],
             test_data.msgs

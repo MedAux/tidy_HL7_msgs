@@ -1,6 +1,7 @@
 '''
 Tidy HL7 message segments
 '''
+# pylint: disable=W0511
 
 # TODO
 # - use virtualenv
@@ -53,6 +54,7 @@ def query_and_tidy_segs(q, store, msg_id_fields, report_fields, limit=-1, stream
     Returns:
         List of raw HL7 messages
     '''
+    # pylint: disable=E0602, C0103, R0913
 
     query = Query(
         q,
@@ -422,6 +424,8 @@ def to_df(lst, field_txt):
     Returns:
         dataframe
     '''
+    # pylint: disable=C0103
+
     df = pd.DataFrame.from_dict(
         dict(lst),
         orient="index"
@@ -451,6 +455,8 @@ def join_dfs(dfs):
     Returns:
         dataframe
     '''
+    # pylint: disable=R1705
+
     if len(dfs) == 1:
         return dfs[0]
     else:
@@ -481,6 +487,7 @@ def are_segs_identical(fields):
     Returns:
         boolean
     '''
+    # pylint: disable=W1401
     segs = [re.match('\w*', field).group() for field in fields]
     return len(set(segs)) == 1
 
@@ -515,6 +522,8 @@ def tidy_segs(msg_id_fields, report_fields, msgs):
     Raises:
         ValueError if all fields are not from the same segment
     '''
+    # pylint: disable=C0103
+
     if not are_segs_identical(report_fields):
         raise ValueError("All fields must be from the same segment")
 

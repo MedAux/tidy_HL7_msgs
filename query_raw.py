@@ -7,7 +7,6 @@ Tidy HL7 message segments
 # - use virtualenv
 #   - http://docs.python-guide.org/en/latest/dev/virtualenvs/#lower-level-virtualenv
 # - anonymized HL7 messages for testing
-# - rename parse_raw and parse_msg to get_msg and get_field?
 
 # TO TEST:
 # - run 'pytest -s' to disable capturing of stdout to print df
@@ -82,7 +81,6 @@ def query_and_tidy_segs(q, store, msg_id_fields, report_fields, limit=-1, stream
                 raw_msgs = list(map(parse_raw, raw))
                 msgs.append(raw_msgs)
         msgs = flatten(msgs)
-
     else:
         hits = query.raw_execute().decode("utf8")
         msgs = re.findall(r'(?si)<OriginalHL7>(.*?)</OriginalHL7>', hits)

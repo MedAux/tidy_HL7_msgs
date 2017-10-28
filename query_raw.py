@@ -1,7 +1,12 @@
-# pylint: disable = C0103, R1705, C0200, W1401, W0511
+'''
+Tidy HL7 message segments
+'''
 
 # TODO
-# - find anonymized HL7 messages for testing
+# - use virtualenv
+#   - http://docs.python-guide.org/en/latest/dev/virtualenvs/#lower-level-virtualenv
+# - anonymized HL7 messages for testing
+# - rename parse_raw and parse_msg to get_msg and get_field?
 
 # TO TEST:
 # - run 'pytest -s' to disable capturing of stdout to print df
@@ -204,7 +209,9 @@ def parse_msgs(field_txt, msgs):
         >>> [['1545'], ['00000741']]
 
         >>> # multiple segments per message
-        >>> msg3 = '...AL1|1|DRUG|00000741^OXYCODONE||HYPOTENSION\n...AL1|2|DRUG|00001433^TRAMADOL||SEIZURES~VOMITING\n'
+        >>> seg_1 = '...AL1|1|DRUG|00000741^OXYCODONE||HYPOTENSION\n'
+        >>> seg_2 = 'AL1|2|DRUG|00001433^TRAMADOL||SEIZURES~VOMITING\n...'
+        >>> msg3 = seg_1 + seg_2
         >>> parse_msgs("AL1.3.1", [msg1, msg3])
         >>> [['1545'], ['00000741', '00001433']]
 
@@ -216,7 +223,6 @@ def parse_msgs(field_txt, msgs):
             "PR1.3" or "DG1.3.1")
 
         msgs: list(string)
-            Messages to parse
 
     Returns:
         list(list(string))
@@ -229,9 +235,6 @@ def get_parser(field):
     '''
     Higher-order function to parse a field from an HL7 message
 
-    Assumes field separator is a pipe ('|') and component separator is a
-    caret ('^')
-
     Example:
         >>> msg = '...AL1|3|DA|1545^MORPHINE^99HIC|||20080828|||\n...'
         >>> parse_allergy_type = get_parser("AL1.2")
@@ -242,18 +245,29 @@ def get_parser(field):
         >>> parse_allergy_code_text(msg)
         >>> ['MORPHINE']
 
-        >>> msg_2 = '...AL1|3|DA|1545^MORPHINE^99HIC|||20080828|||\nAL1|4|DA|1550^CODEINE^99HIC|||20101027|||\n'
+        >>> seg_1 = '...AL1|3|DA|1545^MORPHINE^99HIC|||20080828|||\n'
+        >>> seg_2 = 'AL1|4|DA|1550^CODEINE^99HIC|||20101027|||\n...'
+        >>> msg_2 = seg_1 + seg_2
         >>> parse_allergy_code_text(msg_2)
         >>> ['MORPHINE', 'CODEINE']
 
     Args:
-        field_txt: dict
+        field: dict
             Field attributes and values
 
     Returns:
-        Function to parse HL7 message at a given field
+        Function to parse an HL7 message at a given field
     '''
     def parser(msg):
+        '''
+        Parse an HL7 message
+
+        Args:
+            msg: string
+
+        Returns:
+            list(string)
+        '''
         field_sep = list(msg)[3]
         comp_sep = list(msg)[4]
 
@@ -398,7 +412,7 @@ def to_df(lst, field_txt):
         3  msg_id2  seg_1      val2
 
     Args:
-        lst: list
+        lst: list(tuple(string))
             List of tuples, where the first element is the message ID and the
             second element is a list of parsed values
 
@@ -470,9 +484,9 @@ def are_segs_identical(fields):
     segs = [re.match('\w*', field).group() for field in fields]
     return len(set(segs)) == 1
 
-def tidy_HL7_msg_segs(msg_id_fields, report_fields, msgs):
+def tidy_segs(msg_id_fields, report_fields, msgs):
     '''
-    Parse and tidy fields from HL7 messages
+    Tidy HL7 message segments
 
     Args:
         id_fields: list or able to be converted to one

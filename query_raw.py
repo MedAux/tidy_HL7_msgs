@@ -56,6 +56,16 @@ def query_and_tidy_segs(q, store, msg_id_fields, report_fields, limit=-1, stream
     '''
     # pylint: disable=E0602, C0103, R0913
 
+    def parse_raw(hits):
+        '''
+        Parse HL7 message from IMAT hits
+
+        TODO: return 'msg' (rename to 'msgs') for both streaming and 
+        non-streaming?
+        '''
+        msg = re.findall(r'(?si)<OriginalHL7>(.*?)</OriginalHL7>', hits)
+        return msg[0]
+
     query = Query(
         q,
         store=store,
@@ -199,13 +209,6 @@ def concat(lsts):
         concatted.append([",".join(el[i] for el in lsts)])
 
     return flatten(concatted)
-
-def parse_raw(hits):
-    '''
-    Parse HL7 message from IMAT hits
-    '''
-    msg = re.findall(r'(?si)<OriginalHL7>(.*?)</OriginalHL7>', hits)
-    return msg[0]
 
 def parse_msgs(field_txt, msgs):
     '''

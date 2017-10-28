@@ -1,7 +1,6 @@
 # pylint: disable = C0103, R1705, C0200, W1401, W0511
 
 # TODO
-# - refactor query_raw() to streaming
 # - find anonymized HL7 messages for testing
 
 # TO TEST:
@@ -12,29 +11,67 @@ import itertools
 import pandas as pd
 import numpy as np
 
-def query_raw(query, store, limit=-1):
+def query_and_tidy_segs(q, store, msg_id_fields, report_fields, limit=-1, stream=True):
     '''
-    Query IMAT for raw HL7 messages
+    Query IMAT and tidy HL7 message segments
 
     Args:
         q: string
             An IMAT query
+
         store: string
+
+        msg_id_fields: list or able to be converted to one
+
+            Fields to uniquely identify a message. Fields can be from
+            different message segments, but each field must return in one
+            value per message.
+
+            If argument is a dict-like, its keys must be HL7 field(s) to
+            parse and values will be column names for the returned dataframe.
+
+        report_fields: list or able to be converted to one
+
+            Fields to report.  Fields must be from the same segments.
+
+            If argument is dict-like, its keys must be HL7 field(s) to
+            parse and values will be column names for the returned dataframe.
+
         limit: int
             Default value of -1 returns all hits
+
+        stream: boolean
+            Stream dataframe of hits or return as single dataframe.  Default
+            is true, which streams hits to avoid silently terminating hits after
+            exceeding 4Gb limit.
 
     Returns:
         List of raw HL7 messages
     '''
-    hits_raw = Query(
-        query,
+
+    query = Query(
+        q,
         store=store,
         limit=limit,
         fields="rawrecord"
-    ).raw_execute().decode("utf8")
+    )
 
-    msgs = re.findall(r'(?si)<OriginalHL7>(.*?)</OriginalHL7>', hits_raw)
-    return msgs
+    if stream:
+        msgs = []
+        with DataFrameStream(timeout=1000) as df_stream:
+            df_stream.start_query(query)
+            for df in df_stream:
+                raw = df['rawrecord'].values
+                raw_msgs = list(map(parse_raw, raw))
+                msgs.append(raw_msgs)
+        msgs = flatten(msgs)
+
+    else:
+        hits = query.raw_execute().decode("utf8")
+        msgs = re.findall(r'(?si)<OriginalHL7>(.*?)</OriginalHL7>', hits)
+
+    return tidy_segs(msg_id_fields, report_fields, msgs)
+
 
 def are_lens_equal(*args):
     '''

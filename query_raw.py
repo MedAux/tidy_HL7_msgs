@@ -4,12 +4,14 @@ Tidy HL7 message segments
 # pylint: disable=W0511
 
 # TODO
-# - use virtualenv
-#   - http://docs.python-guide.org/en/latest/dev/virtualenvs/#lower-level-virtualenv
 # - anonymized HL7 messages for testing
+# - separate files for helpers and parsers 
+# - create README
+#   - example and installation
+# - replace test msgs with anonymous msgs
 
-# TO TEST:
-# - run 'pytest -s' to disable capturing of stdout to print df
+# TESTING:
+# - 'pytest -s' to print df
 
 import re
 import itertools
@@ -46,12 +48,13 @@ def query_and_tidy_segs(q, store, msg_id_fields, report_fields, limit=-1, stream
             Default value of -1 returns all hits
 
         stream: boolean
-            Stream dataframe of hits or return as single dataframe.  Default
-            is true, which streams hits to avoid silently terminating hits after
-            exceeding 4Gb limit.
+            Whether to stream dataframe of hits or return hits as single
+            dataframe. Default value of True avoids silently terminating hits
+            after exceeding 4Gb limit.
 
     Returns:
-        List of raw HL7 messages
+        Dataframe whose rows are message segments and whose columns are
+        message id fields, segment number, and reported fields.
     '''
     # pylint: disable=E0602, C0103, R0913
 
@@ -59,8 +62,10 @@ def query_and_tidy_segs(q, store, msg_id_fields, report_fields, limit=-1, stream
         '''
         Parse HL7 message from IMAT hits
 
-        TODO: return 'msg' (rename to 'msgs') for both streaming and 
+        TODO: return 'msg' (rename to 'msgs') for both streaming and
         non-streaming?
+
+        TODO: test on IMAT
         '''
         msg = re.findall(r'(?si)<OriginalHL7>(.*?)</OriginalHL7>', hits)
         return msg[0]
@@ -90,7 +95,7 @@ def query_and_tidy_segs(q, store, msg_id_fields, report_fields, limit=-1, stream
 
 def are_lens_equal(*args):
     '''
-    Are lengths equal
+    Are lengths equal?
 
     Example:
         >>> are_lens_equal([1, 2], [1, 2])
@@ -109,7 +114,7 @@ def are_lens_equal(*args):
 
 def are_nested_lens_equal(lst1, lst2):
     '''
-    Are nested lengths equal
+    Are nested lengths equal?
 
     Example:
         >>> are_nested_lens_equal(
@@ -135,9 +140,9 @@ def are_nested_lens_equal(lst1, lst2):
 
 def flatten(lst):
     '''
-    Flatten lists nested one level deep.
+    Flatten lists nested one level deep
 
-    Empty nested lists are not perserved.
+    Empty nested lists are not perserved
 
     Example:
         >>> flatten([[1, 2], [3, 4], [5, 6]])
@@ -153,15 +158,15 @@ def flatten(lst):
         lst: list
 
     Returns:
-        A list
+        list
     '''
     return [item for sublist in lst for item in sublist]
 
 def zip_nested(lst1, lst2):
     '''
-    Zip nested lists.
+    Zip nested lists
 
-    The length of the two lists must be equal.
+    The length of the two lists must be equal
 
     Examples:
         >>> zip_nested([['a', 'b']], [['y', 'z']])
@@ -569,6 +574,8 @@ def tidy_segs(msg_id_fields, report_fields, msgs):
         subset=report_fields,
         inplace=True
     )
+
+    # TODO: sort by msg_id so df is grouped by msg
 
     # split concatted fields used for a message id into individual columns;
     # combine this id dataframe with that for reported fields, dropping

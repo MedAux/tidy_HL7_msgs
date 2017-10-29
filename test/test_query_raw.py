@@ -2,11 +2,11 @@
 
 import pytest
 from ..query_raw import tidy_segs
-from ..helpers import (
-    are_lens_equal, are_nested_lens_equal, are_segs_identical,
-    flatten, zip_nested, concat
-)
 from ..parsers import parse_field_txt, parse_msgs, parse_msg_id
+from ..helpers import (
+    concat, flatten, zip_nested, are_lens_equal,
+    are_segs_identical, are_nested_lens_equal,
+)
 
 MSG_1 = '''
     MSH|^~\\&||^Facility A|||20170515104040||ADT^A08^ADT A08

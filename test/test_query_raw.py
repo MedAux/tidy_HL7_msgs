@@ -1,13 +1,32 @@
 # pylint: disable=W0614,C0111
 
 import pytest
-from . import test_data
 from ..query_raw import tidy_segs
 from ..helpers import (
     are_lens_equal, are_nested_lens_equal, are_segs_identical,
     flatten, zip_nested, concat
 )
 from ..parsers import parse_field_txt, parse_msgs, parse_msg_id
+
+MSG_1 = '''
+    MSH|^~\\&||^Facility A|||20170515104040||ADT^A08^ADT A08
+    PID|1||123^^^FACILITY A||DOE^JOHN
+    DG1|1||D53.9^Nutritional anemia, unspecified^I10|||AM
+    DG1|2||D53.9^Nutritional anemia, unspecified^I10|||F
+    DG1|3||C80.1^Malignant (primary) neoplasm, unspecified^I10|||F
+    DG1|4||N30.00^Acute cystitis without hematuria^I10|||F
+'''.lstrip()
+
+MSG_2 = '''
+    MSH|^~\\&||^Facility B|||20170711123256||ADT^A08^ADT A08
+    PID|1||456^^^FACILITY B||SMITH^JANE
+    DG1|1||M43.16^Spondylolisthesis, lumbar region^I10|||AM
+    DG1|2||M43.16^Spondylolisthesis, lumbar region^I10|||F
+    DG1|3||I10^Essential (primary) hypertension^I10|||F
+    DG1|4||M48.06^Spinal stenosis, lumbar region^I10|||F
+'''.lstrip()
+
+TEST_MSGS = [MSG_1, MSG_2]
 
 def test_are_lens_equal():
     assert are_lens_equal([1, 2, 3], [1, 2, 3]) is True
@@ -48,20 +67,27 @@ def test_concat():
         concat([[['a', 'b']], [['x', 'y', 'z']]])
 
 def test_parse_msgs():
-    assert parse_msgs('DG1.6', test_data.msgs) == test_data.DG_1_6
+    assert parse_msgs('DG1.6', TEST_MSGS) == [
+        ['AM', 'F', 'F', 'F'],
+        ['AM', 'F', 'F', 'F']
+    ]
+    assert parse_msgs('DG1.3.1', TEST_MSGS) == [
+        ['D53.9', 'D53.9', 'C80.1', 'N30.00'],
+        ['M43.16', 'M43.16', 'I10', 'M48.06']
+    ]
 
 def test_parse_msg_ids():
-    assert parse_msg_id(['PID.3.4', 'PID.3.1', 'PID.18.1'], test_data.msgs) == (
-        test_data.msg_ids
+    assert parse_msg_id(['PID.3.1', 'PID.3.4', 'MSH.7'], TEST_MSGS) == (
+        ['123,FACILITY A,20170515104040', '456,FACILITY B,20170711123256']
     )
 
     # field w/ multiple segments and therefore multiple values
     with pytest.raises(RuntimeError):
-        parse_msg_id(['AL1.1.1'], test_data.msg_ids)
+        parse_msg_id(['DG1.3.1'], TEST_MSGS)
 
-    non_unique_msg_ids = test_data.msgs + [test_data.msgs[0]]
+    non_unique_msg_ids = TEST_MSGS + [TEST_MSGS[0]]
     with pytest.raises(RuntimeError):
-        parse_msg_id(['PID.3.4', 'PID.3.1', 'PID.18.1'], non_unique_msg_ids)
+        parse_msg_id(['PID.3.1', 'PID.3.4'], non_unique_msg_ids)
 
 
 def test_parse_field_txt():
@@ -107,35 +133,34 @@ def test_tidy_segs():
     # )
 
     id_fields_dict = {
-        'MSH.7': 'id_field_1',
         'PID.3.1': 'id_field_2',
         'PID.3.4': 'id_field_3',
-        'PID.18.1': 'id_field_4'
+        'MSH.7': 'id_field_1',
     }
 
     report_fields_dict = {
         'DG1.3.1': 'report_field_1',
         'DG1.3.2': 'report_field_2',
-        'DG1.6': 'report_field_3',
-        'DG1.15': 'report_field_4'
+        'DG1.3.3': 'report_field_3',
+        'DG1.6': 'report_field_4',
     }
 
     df = tidy_segs(
         id_fields_dict,
         report_fields_dict,
-        test_data.msgs
+        TEST_MSGS
     )
-
-    print('\n')
-    print(df)
 
     col_names = list(id_fields_dict.values()) + list(report_fields_dict.values())
     assert all([col_name in df.columns.values for col_name in col_names]) is True
 
+    print('\n')
+    print(df)
+
     # segments of report fields not the same
     with pytest.raises(ValueError):
         tidy_segs(
-            ['PID.3.4', 'PID.3.1', 'PID.18.1'],
+            ['PID.3.1', 'PID.3.4'],
             ['DG1.3.1', 'DG1.3.2', 'AL.15'],
-            test_data.msgs
+            TEST_MSGS
         )

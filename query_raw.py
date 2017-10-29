@@ -4,10 +4,8 @@ Tidy HL7 message segments
 # pylint: disable=W0511
 
 # TODO
-# - anonymized HL7 messages for testing
 # - create README
 #   - example and installation
-# - replace test msgs with anonymous msgs
 
 # TESTING:
 # - 'pytest -s' to print df

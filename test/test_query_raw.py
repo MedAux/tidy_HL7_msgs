@@ -1,7 +1,7 @@
 # pylint: disable=W0614,C0111
 
 import pytest
-from ..query_raw import tidy_segs
+from ..tidy_hl7_msgs import tidy_segs
 from ..parsers import parse_field_txt, parse_msgs, parse_msg_id
 from ..helpers import (
     concat, flatten, zip_nested, are_lens_equal,

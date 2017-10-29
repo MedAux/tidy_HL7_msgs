@@ -7,7 +7,6 @@ Tidy HL7 message segments
 # - create README
 #   - example and installation
 # - if IndexError raised for field, return np.nan
-# - rename query_raw.py and directory to tidy HL7 msgs
 
 # TESTING:
 # - 'pytest -s' to print df

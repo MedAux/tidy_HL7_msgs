@@ -1,8 +1,13 @@
 # pylint: disable=W0614,C0111
 
 import pytest
-from query_raw.query_raw import *
-from query_raw.test import test_data
+from . import test_data
+from ..query_raw import tidy_segs
+from ..helpers import (
+    are_lens_equal, are_nested_lens_equal, are_segs_identical,
+    flatten, zip_nested, concat
+)
+from ..parsers import parse_field_txt, parse_msgs, parse_msg_id
 
 def test_are_lens_equal():
     assert are_lens_equal([1, 2, 3], [1, 2, 3]) is True
@@ -90,6 +95,8 @@ def test_are_segs_identical():
     assert are_segs_identical(non_identical_segs) is False
 
 def test_tidy_segs():
+    # pylint: disable=C0103
+
     # id_fields_lst = ['PID.3.4', 'PID.3.1', 'PID.18.1']
     # report_fields_lst = ['DG1.3.1', 'DG1.3.2', 'DG1.6', 'DG1.15'],
 

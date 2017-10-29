@@ -8,9 +8,6 @@ Tidy HL7 message segments
 #   - example and installation
 # - if IndexError raised for field, return np.nan
 
-# TESTING:
-# - 'pytest -s' to print df
-
 import re
 import itertools
 import pandas as pd

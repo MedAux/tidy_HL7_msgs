@@ -1,4 +1,5 @@
 # pylint: disable=W0614,C0111
+# run 'pytest -s' to print df
 
 import pytest
 from ..tidy_hl7_msgs import tidy_segs

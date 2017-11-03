@@ -8,7 +8,6 @@ Tidy HL7 message segments
 # - create README
 #   - example and installation
 
-import re
 import itertools
 import pandas as pd
 from .helpers import are_segs_identical, zip_msg_ids, to_df, join_dfs

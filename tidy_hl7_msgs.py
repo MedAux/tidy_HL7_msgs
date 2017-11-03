@@ -101,11 +101,10 @@ def tidy_segs(msg_id_locs, report_locs, msgs):
     id_cols.columns = msg_id_locs
     df = pd.concat([id_cols, df], axis=1).drop(['msg_id'], axis=1)
 
-    # TODO: more specific exception handling?
     try:
         df.rename(columns=msg_id_locs, inplace=True)
         df.rename(columns=report_locs, inplace=True)
-    except Exception:
+    except TypeError:
         pass
 
     return df

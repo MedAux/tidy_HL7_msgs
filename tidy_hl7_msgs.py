@@ -4,9 +4,10 @@ Tidy HL7 message segments
 # pylint: disable=W0511
 
 # TODO
+# update var names
+# remove poss. duplicate messages
 # - create README
 #   - example and installation
-# - if IndexError raised for field, return np.nan
 
 import re
 import itertools

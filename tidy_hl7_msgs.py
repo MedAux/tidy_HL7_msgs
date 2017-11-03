@@ -5,7 +5,6 @@ Tidy HL7 message segments
 
 # TODO
 # update var names
-# remove poss. duplicate messages
 # - create README
 #   - example and installation
 
@@ -90,7 +89,6 @@ def tidy_segs(msg_id_fields, report_fields, msgs):
     )
 
     # sort by msg_id to group segs by msg
-    # NOTE: order will differ from that of the input messages
     df.sort_values(by=['msg_id'], inplace=True)
 
 

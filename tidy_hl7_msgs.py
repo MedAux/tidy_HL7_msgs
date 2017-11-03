@@ -1,12 +1,10 @@
 '''
 Tidy HL7 message segments
-'''
-# pylint: disable=fixme
 
-# TODO
-# update var names
-# - create README
-#   - example and installation
+TODO
+- create README
+- example and installation
+'''
 
 import itertools
 import pandas as pd
@@ -26,7 +24,8 @@ def tidy_segs(msg_id_locs, report_locs, msgs):
             uniquely identified by their message IDs.
 
             Location syntax must be either '<segment>.<field>' or
-            '<segment>.<field>.<component>' (ex. 'PID.3' or 'PID.3.1')
+            '<segment>.<field>.<component>', delinated by a period ('.')
+            (ex. 'DG1.2' or 'DG1.2.1')
 
             If passed a dictionary, its keys will be locations to parse
             and values will be the column names of the returned dataframe.
@@ -37,7 +36,8 @@ def tidy_segs(msg_id_locs, report_locs, msgs):
             must be from the same segment.
 
             Location syntax must be either '<segment>.<field>' or
-            '<segment>.<field>.<component>' (ex. 'DG1.2' or 'DG1.2.1')
+            '<segment>.<field>.<component>', delinated by a period ('.')
+            (ex. 'DG1.2' or 'DG1.2.1')
 
             If passed a dictionary, its keys will be locations to parse
             and values will be the column names of the returned dataframe.

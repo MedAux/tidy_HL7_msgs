@@ -9,7 +9,7 @@ from .helpers import concat
 
 def parse_msgs(loc_txt, msgs):
     '''
-    Parse messages for a given location
+    Parse messages at a given location
 
     Examples:
         >>> msg1 = '...AL1|3|DA|1545^MORPHINE^99HIC|||20080828|||\n...'

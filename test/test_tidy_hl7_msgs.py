@@ -134,9 +134,9 @@ def test_tidy_segs():
     # )
 
     id_fields_dict = {
+        'MSH.7': 'id_field_1',
         'PID.3.1': 'id_field_2',
         'PID.3.4': 'id_field_3',
-        'MSH.7': 'id_field_1',
     }
 
     report_fields_dict = {
@@ -144,6 +144,7 @@ def test_tidy_segs():
         'DG1.3.2': 'report_field_2',
         'DG1.3.3': 'report_field_3',
         'DG1.6': 'report_field_4',
+        'DG1.16': 'report_field_5',
     }
 
     df = tidy_segs(

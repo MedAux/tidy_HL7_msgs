@@ -97,8 +97,8 @@ def parse_field_txt(field_txt):
 
     if field['depth'] not in [2, 3]:
         raise ValueError(
-            "Syntax of location must be either '<segment>.<component>' or"
-            "'<segment>.<component>.<subcomponent>'"
+            "Syntax of location must be either '<segment>.<field>' or"
+            "'<segment>.<field>.<component>'"
         )
 
     loc_split = field_txt.split(".")

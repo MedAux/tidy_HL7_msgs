@@ -66,8 +66,7 @@ def are_segs_identical(fields):
     Returns:
         boolean
     '''
-    # pylint: disable=W1401
-    segs = [re.match('\w*', field).group() for field in fields]
+    segs = [re.match('\\w*', field).group() for field in fields]
     return len(set(segs)) == 1
 
 def flatten(lst):

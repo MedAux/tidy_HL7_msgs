@@ -20,7 +20,7 @@ def tidy_segs(msg_id_fields, report_fields, msgs):
     Tidy HL7 message segments
 
     Args:
-        id_fields: list or able to be converted to one
+        msg_id_fields: list or able to be converted to one
 
             Fields to uniquely identify a message. Fields can be from
             different message segments, but each field must return in one
@@ -41,7 +41,8 @@ def tidy_segs(msg_id_fields, report_fields, msgs):
 
     Returns:
         Dataframe whose rows are message segments and whose columns are
-        message id fields, segment number, and reported fields.
+        message id fields, segment number, and reported fields.  Missing values
+        are reported a numpy NaN.
 
     Raises:
         ValueError if all fields are not from the same segment
@@ -78,7 +79,7 @@ def tidy_segs(msg_id_fields, report_fields, msgs):
     # join dataframes
     df = join_dfs(dfs)
 
-    # remove segments lacking data
+    # remove segments missing data for all reported fields
     df.dropna(
         axis=0,
         how='all',
@@ -86,7 +87,10 @@ def tidy_segs(msg_id_fields, report_fields, msgs):
         inplace=True
     )
 
-    # TODO: sort by msg_id so df is grouped by msg
+    # sort by msg_id to group segs by msg
+    # NOTE: order will differ from that of the input messages
+    df.sort_values(by=['msg_id'], inplace=True)
+
 
     # split concatted fields used for a message id into individual columns;
     # combine this id dataframe with that for reported fields, dropping

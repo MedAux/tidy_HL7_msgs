@@ -44,6 +44,8 @@ def get_parser(field):
         Returns:
             list(string)
         '''
+        assert field['depth'] in [2, 3]
+
         field_sep = list(msg)[3]
         comp_sep = list(msg)[4]
 
@@ -52,15 +54,20 @@ def get_parser(field):
 
         data = []
         for seg in segs:
-            comp = seg.split(field_sep)[field['comp']]
+            seg_split = seg.split(field_sep)
             if field['depth'] == 2:
-                datum = comp
+                try:
+                    comp = seg_split[field['comp']]
+                    data.append(comp)
+                except IndexError:
+                    data.append(np.nan)
             else:
                 try:
-                    datum = comp.split(comp_sep)[field['subcomp']]
+                    comp = seg_split[field['comp']]
+                    subcomp = comp.split(comp_sep)[field['subcomp']]
+                    data.append(subcomp)
                 except IndexError:
-                    datum = np.nan
-            data.append(datum)
+                    data.append(np.nan)
         return data
     return parser
 

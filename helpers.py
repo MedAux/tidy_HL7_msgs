@@ -50,9 +50,9 @@ def are_nested_lens_equal(lst1, lst2):
     assert are_lens_equal(lst1, lst2), "List lengths are not equal"
     return all([len(lst1[i]) == len(lst2[i]) for i in range(len(lst1))]) is True
 
-def are_segs_identical(fields):
+def are_segs_identical(locs):
     '''
-    Check if all fields are from the same segment
+    Check if all locations are from the same segment
 
     Example:
     >>> are_segs_identical(['DG1.3.1', 'DG1.3.2', 'DG1.6'])
@@ -61,12 +61,12 @@ def are_segs_identical(fields):
     False
 
     Args:
-        fields: list(string)
+        locs: list(string)
 
     Returns:
         boolean
     '''
-    segs = [re.match('\\w*', field).group() for field in fields]
+    segs = [re.match('\\w*', loc).group() for loc in locs]
     return len(set(segs)) == 1
 
 def flatten(lst):
@@ -146,7 +146,7 @@ def concat(lsts):
 
 def zip_msg_ids(lst, msg_ids):
     '''
-    Zip after checking list lengths are equal
+    Zip message IDs
 
     Args:
         lst: list
@@ -158,9 +158,9 @@ def zip_msg_ids(lst, msg_ids):
     assert are_lens_equal(msg_ids, lst), "List lengths are not equal"
     return list(zip(msg_ids, lst))
 
-def to_df(lst, field_txt):
+def to_df(lst, loc_txt):
     '''
-    Convert list to dataframe
+    Convert list of zipped values to dataframe
 
     Example:
         >>> to_df(
@@ -178,8 +178,8 @@ def to_df(lst, field_txt):
             List of tuples, where the first element is the message ID and the
             second element is a list of parsed values
 
-        field_txt: string
-            Field name
+        loc_txt: string
+            Location text
 
     Returns:
         dataframe
@@ -199,7 +199,7 @@ def to_df(lst, field_txt):
     df.rename(
         columns={
             "variable": "seg",
-            "value": field_txt
+            "value": loc_txt
         },
         inplace=True
     )

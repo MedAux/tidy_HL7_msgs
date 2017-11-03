@@ -52,14 +52,16 @@ def tidy_segs(msg_id_fields, report_fields, msgs):
     if not are_segs_identical(report_fields):
         raise ValueError("All fields must be from the same segment")
 
+    msgs_unique = set(msgs)
+
     # parse message ids
-    msg_ids = parse_msg_id(list(msg_id_fields), msgs)
+    msg_ids = parse_msg_id(list(msg_id_fields), msgs_unique)
 
     # parse report fields
     report_fields_vals = map(
         parse_msgs,
         list(report_fields),
-        itertools.repeat(msgs)
+        itertools.repeat(msgs_unique)
     )
 
     # zip report field values and message ids

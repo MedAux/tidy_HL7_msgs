@@ -110,7 +110,7 @@ def zip_nested(lst1, lst2):
     Returns:
         list(list(tuple))
     '''
-    assert are_nested_lens_equal(lst1, lst2), "Nested list lengths are not equal"
+    assert are_nested_lens_equal(lst1, lst2), "Lengths of nested lists are not equal"
     return [list(zip(lst1[i], lst2[i])) for i in range(len(lst1))]
 
 def concat(lsts):

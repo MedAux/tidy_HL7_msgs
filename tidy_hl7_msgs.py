@@ -1,9 +1,5 @@
 '''
 Tidy HL7 message segments
-
-TODO
-- create README
-- example and installation
 '''
 
 import itertools
@@ -18,17 +14,17 @@ def tidy_segs(msg_id_locs, report_locs, msgs):
     Args:
         msg_id_locs: list or able to be converted to one
 
-            Locations (i.e. fields and/or components) to uniquely identify a
-            message. Locations can be from different message segments, but
-            each location must return one value per message. Messages must be
-            uniquely identified by their message IDs.
+            Locations (i.e. HL7 message fields and/or components) that in
+            combination uniquely identify a message. Locations can be from
+            different message segments, but each location must return one
+            value per message. Message IDs must uniquely identify messages.
 
             Location syntax must be either '<segment>.<field>' or
             '<segment>.<field>.<component>', delinated by a period ('.')
-            (ex. 'DG1.2' or 'DG1.2.1')
+            (ex. 'MSH.4' or 'MSH.4.1')
 
-            If passed a dictionary, its keys will be locations to parse
-            and values will be the column names of the returned dataframe.
+            If passed a dictionary, its keys will be parsed locations and its
+            values will be column names.
 
         report_loc: list or able to be converted to one
 
@@ -39,15 +35,15 @@ def tidy_segs(msg_id_locs, report_locs, msgs):
             '<segment>.<field>.<component>', delinated by a period ('.')
             (ex. 'DG1.2' or 'DG1.2.1')
 
-            If passed a dictionary, its keys will be locations to parse
-            and values will be the column names of the returned dataframe.
+            If passed a dictionary, its keys will be parsed locations and its
+            values will be column names.
 
         msgs: list of HL7 messages
 
     Returns:
-        Dataframe of unique messages whose rows are message segments and
-        whose columns are message ids, segment number, and report
-        locations. Missing values are reported as numpy NaN.
+        Dataframe of unique messages with rows for each message segment and
+        with columns for message ids, segment number, and report locations.
+        Missing values are reported as numpy NaN.
 
     Raises:
         ValueError if report locations are not from the same segment

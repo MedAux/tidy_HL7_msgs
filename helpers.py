@@ -26,7 +26,7 @@ def are_lens_equal(*args):
 
 def are_nested_lens_equal(lst1, lst2):
     '''
-    Are nested lengths equal?
+    Are nested lengths one level deep equal?
 
     Example:
         >>> are_nested_lens_equal(
@@ -52,7 +52,7 @@ def are_nested_lens_equal(lst1, lst2):
 
 def are_segs_identical(locs):
     '''
-    Check if all locations are from the same segment
+    Are all locations from the same segment?
 
     Example:
     >>> are_segs_identical(['DG1.3.1', 'DG1.3.2', 'DG1.6'])
@@ -73,8 +73,6 @@ def flatten(lst):
     '''
     Flatten lists nested one level deep
 
-    Empty nested lists are not perserved
-
     Example:
         >>> flatten([[1, 2], [3, 4], [5, 6]])
         [1, 2, 3, 4, 5, 6]
@@ -86,7 +84,7 @@ def flatten(lst):
         [1, 2, 3, 4, 5, 6, [7, 8]]
 
     Args:
-        lst: list
+        lst: list(list)
 
     Returns:
         list
@@ -95,9 +93,7 @@ def flatten(lst):
 
 def zip_nested(lst1, lst2):
     '''
-    Zip nested lists
-
-    The length of the two lists must be equal
+    Zip nested lists of equal length
 
     Examples:
         >>> zip_nested([['a', 'b']], [['y', 'z']])
@@ -146,7 +142,7 @@ def concat(lsts):
 
 def zip_msg_ids(lst, msg_ids):
     '''
-    Zip message IDs
+    Zip message IDs of equal length
 
     Args:
         lst: list

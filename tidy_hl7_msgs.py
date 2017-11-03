@@ -1,7 +1,7 @@
 '''
 Tidy HL7 message segments
 '''
-# pylint: disable=W0511
+# pylint: disable=fixme
 
 # TODO
 # update var names
@@ -47,7 +47,7 @@ def tidy_segs(msg_id_fields, report_fields, msgs):
     Raises:
         ValueError if all fields are not from the same segment
     '''
-    # pylint: disable=C0103
+    # pylint: disable=invalid-name
 
     if not are_segs_identical(report_fields):
         raise ValueError("All fields must be from the same segment")

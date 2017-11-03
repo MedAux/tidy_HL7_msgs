@@ -184,7 +184,7 @@ def to_df(lst, field_txt):
     Returns:
         dataframe
     '''
-    # pylint: disable=C0103
+    # pylint: disable=invalid-name
 
     df = pd.DataFrame.from_dict(
         dict(lst),
@@ -215,7 +215,7 @@ def join_dfs(dfs):
     Returns:
         dataframe
     '''
-    # pylint: disable=R1705
+    # pylint: disable=no-else-return
 
     if len(dfs) == 1:
         return dfs[0]

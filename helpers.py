@@ -48,7 +48,8 @@ def are_nested_lens_equal(lst1, lst2):
         Boolean
     '''
     assert are_lens_equal(lst1, lst2), "List lengths are not equal"
-    return all([len(lst1[i]) == len(lst2[i]) for i in range(len(lst1))]) is True
+    len_lsts = range(len(lst1))
+    return all([len(lst1[i]) == len(lst2[i]) for i in len_lsts]) is True
 
 def are_segs_identical(locs):
     '''

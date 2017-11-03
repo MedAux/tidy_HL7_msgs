@@ -1,0 +1,12 @@
+.DS_Store
+.cache/
+.vscode/
+**.swp
+__pycache__/
+__init__.py
+env/
+build/
+
+# include?
+dist/
+*.egg-info/

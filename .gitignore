@@ -3,7 +3,6 @@
 .cache/
 .vscode/
 __pycache__/
-__init__.py
 env/
 build/
 dist/

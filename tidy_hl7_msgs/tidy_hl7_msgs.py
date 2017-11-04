@@ -4,8 +4,16 @@ Tidy HL7 message segments
 
 import itertools
 import pandas as pd
-from .helpers import are_segs_identical, zip_msg_ids, to_df, join_dfs
-from .parsers import parse_msgs, parse_msg_id
+from .helpers import (
+    are_segs_identical,
+    zip_msg_ids,
+    to_df,
+    join_dfs
+)
+from .parsers import (
+    parse_msgs,
+    parse_msg_id
+)
 
 def tidy_segs(msg_id_locs, report_locs, msgs):
     ''' Tidy HL7 message segments

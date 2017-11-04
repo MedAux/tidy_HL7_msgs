@@ -14,6 +14,8 @@ setup(
     license='MIT',
     classifiers=[
         'Development Status :: 4 - Beta',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3 :: Only',
         'Intended Audience :: Healthcare Industry',
         'License :: OSI Approved :: MIT License',
     ],

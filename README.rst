@@ -15,6 +15,7 @@ Example
     ...    DG1|1||D53.9^Nutritional anemia, unspecified^I10|||AM
     ...    DG1|2||C80.1^Malignant (primary) neoplasm, unspecified^I10|||F
     ... '''.lstrip()
+    >>>
     >>> msg_2 = '''
     ...     MSH|^~\\&||^Facility B|||20170711123256||ADT^A08^ADT A08|456
     ...     PID|1||456^^^FACILITY B||SMITH^JANE
@@ -72,3 +73,4 @@ To run unit tests:
 .. code-block:: bash
 
     $ python -m pytest
+    $ python -m pytest -s         # to print dataframe

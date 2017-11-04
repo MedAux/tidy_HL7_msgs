@@ -2,7 +2,7 @@
 Setup
 '''
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='tidy_hl7_msgs',
@@ -20,7 +20,7 @@ setup(
         'License :: OSI Approved :: MIT License',
     ],
     keywords='healthcare HL7',
-    packages=['tidy_hl7_msgs'],
+    packages=find_packages(),
     install_requires=[
         'pandas',
         'numpy',

@@ -1,6 +1,6 @@
 Tidy HL7 Messages
 =================
-A simple utility to parse and tidy HL7 message segments
+A simple Python utility to parse and tidy HL7 message segments
 
 Example
 -------

@@ -186,9 +186,10 @@ def parse_msg_id(id_locs_txt, msgs):
     )
 
     if not all(are_loc_ids_single):
+        locs_multi_ids = itertools.compress(id_locs_txt, are_loc_ids_single)
         raise RuntimeError(
-            "One or more ID locations have multiple values per message: {id_locs}. ".format(
-                id_locs=", ".join(itertools.compress(id_locs_txt, are_loc_ids_single))
+            "One or more message ID locations have multiple values per message: {locs}".format(
+                locs=", ".join(locs_multi_ids)
             )
         )
 

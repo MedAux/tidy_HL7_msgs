@@ -8,45 +8,50 @@ from .helpers import are_segs_identical, zip_msg_ids, to_df, join_dfs
 from .parsers import parse_msgs, parse_msg_id
 
 def tidy_segs(msg_id_locs, report_locs, msgs):
-    '''
-    Tidy HL7 message segments
+    ''' Tidy HL7 message segments
 
-    Args:
-        msg_id_locs: list or able to be converted to one
+    Parameters
+    ----------
+    msg_id_locs : list or able to be converted to one
 
-            Locations (i.e. HL7 message fields and/or components) that in
-            combination uniquely identify a message. Locations can be from
-            different message segments, but each location must return one
-            value per message. Message IDs must uniquely identify messages.
+        Locations (i.e. HL7 message fields and/or components) that in
+        combination uniquely identify a message. Locations can be from
+        different message segments, but each location must return one
+        value per message. Message IDs must uniquely identify messages.
 
-            Location syntax must be either '<segment>.<field>' or
-            '<segment>.<field>.<component>', delinated by a period ('.')
-            (ex. 'MSH.4' or 'MSH.4.1')
+        Location syntax must be either '<segment>.<field>' or
+        '<segment>.<field>.<component>', delinated by a period ('.')
+        (ex. 'MSH.4' or 'MSH.4.1')
 
-            If passed a dictionary, its keys will be parsed locations and its
-            values will be column names.
+        If passed a dictionary, its keys will be parsed locations and its
+        values will be column names.
 
-        report_loc: list or able to be converted to one
+    report_loc : list or able to be converted to one
 
-            Locations (i.e. fields and/or components) to report. Locations
-            must be from the same segment.
+        Locations (i.e. fields and/or components) to report. Locations
+        must be from the same segment.
 
-            Location syntax must be either '<segment>.<field>' or
-            '<segment>.<field>.<component>', delinated by a period ('.')
-            (ex. 'DG1.2' or 'DG1.2.1')
+        Location syntax must be either '<segment>.<field>' or
+        '<segment>.<field>.<component>', delinated by a period ('.')
+        (ex. 'DG1.2' or 'DG1.2.1')
 
-            If passed a dictionary, its keys will be parsed locations and its
-            values will be column names.
+        If passed a dictionary, its keys will be parsed locations and its
+        values will be column names.
 
-        msgs: list of HL7 messages
+    msgs : list(string) of HL7 messages
 
-    Returns:
-        Dataframe of unique messages with rows for each message segment and
-        with columns for message ids, segment number, and report locations.
+    Returns
+    -------
+    Dataframe
+
+        For each unique message, rows for each segment and columns for
+        message ids, segment number, and report locations.
+
         Missing values are reported as numpy NaN.
 
-    Raises:
-        ValueError if report locations are not from the same segment
+    Raises
+    ------
+    ValueError if report locations are not from the same segment
     '''
     # pylint: disable=invalid-name
 

@@ -5,130 +5,144 @@ Helpers
 import re
 import pandas as pd
 
-def are_lens_equal(*args):
+def are_lens_equal(*lsts):
+    ''' Are lengths equal?
+
+    Parameters
+    ----------
+    *lsts : one or more lists
+
+    Returns
+    -------
+    Boolean
+
+    Examples
+    -------
+    >>> are_lens_equal([1, 2], [1, 2])
+    True
+    >>> are_lens_equal([1, 2], [1, 2, 3])
+    False
+
     '''
-    Are lengths equal?
-
-    Example:
-        >>> are_lens_equal([1, 2], [1, 2])
-        True
-        >>> are_lens_equal([1, 2], [1, 2, 3])
-        False
-
-    Args:
-        *args: one or more lists
-
-    Returns:
-        Boolean
-    '''
-    lens = [len(x) for x in args]
+    lens = [len(x) for x in lsts]
     return len(set(lens)) == 1
 
 def are_nested_lens_equal(lst1, lst2):
-    '''
-    Are nested lengths one level deep equal?
+    ''' Are the lengths of nested lists equal?
 
-    Example:
-        >>> are_nested_lens_equal(
-        ...     [[1, 2], [1, 2], [1, 2]],
-        ...     [[1, 2], [1, 2], [1, 2]]
-        ... )
-        True
-        >>> are_nested_lens_equal(
-        ...     [[1, 2], [1, 2], [1, 2]],
-        ...     [[1, 2], [1, 2], [1, 2, 3]]
-        ... )
-        >>> are_nested_lens_equal(
-        False
-    Args:
-        lst1: list
-        lst2: list
+    Parameters
+    ----------
+    lst1 : list
+    lst2 : list
 
-    Returns:
-        Boolean
+    Returns
+    -------
+    Boolean
+
+    Examples
+    -------
+    >>> are_nested_lens_equal(
+    ...     [[1, 2], [1, 2], [1, 2]],
+    ...     [[1, 2], [1, 2], [1, 2]]
+    ... )
+    True
+    >>> are_nested_lens_equal(
+    ...     [[1, 2], [1, 2], [1, 2]],
+    ...     [[1, 2], [1, 2], [1, 2, 3]]
+    ... )
+    False
     '''
     assert are_lens_equal(lst1, lst2), "List lengths are not equal"
     len_lsts = range(len(lst1))
     return all([len(lst1[i]) == len(lst2[i]) for i in len_lsts]) is True
 
 def are_segs_identical(locs):
-    '''
-    Are all locations from the same segment?
+    ''' Are all locations from the same segment?
 
-    Example:
+    Parameters
+    ----------
+    locs : list(string)
+
+    Returns
+    -------
+    Boolean
+
+    Examples
+    -------
     >>> are_segs_identical(['DG1.3.1', 'DG1.3.2', 'DG1.6'])
     True
     >>> are_segs_identical(['DG1.3.1', 'DG1.3.2', 'PID.3.4'])
     False
 
-    Args:
-        locs: list(string)
-
-    Returns:
-        boolean
     '''
     segs = [re.match('\\w*', loc).group() for loc in locs]
     return len(set(segs)) == 1
 
 def flatten(lst):
-    '''
-    Flatten lists nested one level deep
+    ''' Flatten lists nested one level deep
 
-    Example:
-        >>> flatten([[1, 2], [3, 4], [5, 6]])
-        [1, 2, 3, 4, 5, 6]
+    Parameters
+    ----------
+    lst : list(list)
 
-        >>> flatten([[1, 2], [3, 4], []])
-        [1, 2, 3, 4]
+    Returns
+    -------
+    List
 
-        >>> flatten([[1, 2], [3, 4], [5, 6, [7, 8]]])
-        [1, 2, 3, 4, 5, 6, [7, 8]]
+    Examples
+    -------
+    >>> flatten([[1, 2], [3, 4], [5, 6]])
+    [1, 2, 3, 4, 5, 6]
 
-    Args:
-        lst: list(list)
+    >>> flatten([[1, 2], [3, 4], []])
+    [1, 2, 3, 4]
 
-    Returns:
-        list
+    >>> flatten([[1, 2], [3, 4], [5, 6, [7, 8]]])
+    [1, 2, 3, 4, 5, 6, [7, 8]]
     '''
     return [item for sublist in lst for item in sublist]
 
 def zip_nested(lst1, lst2):
-    '''
-    Zip nested lists of equal length
+    ''' Zip nested lists of equal length
 
-    Examples:
-        >>> zip_nested([['a', 'b']], [['y', 'z']])
-        [[('a', 'y'), ('b', 'z')]]
+    Parameters
+    ----------
+    lst1 : list(string)
+    lst2 : list(string)
 
-        >>> zip_nested([['a', 'b'],['c', 'd']], [['w', 'x'],['y', 'z']])
-        [[('a', 'w'), ('b', 'x')], [('c', 'y'), ('d', 'z')]]
+    Returns
+    -------
+    List(list(tuple))
 
-    Args:
-        lst1: list(string)
-        lst2: list(string)
+    Exampless
+    --------
+    >>> zip_nested([['a', 'b']], [['y', 'z']])
+    [[('a', 'y'), ('b', 'z')]]
 
-    Returns:
-        list(list(tuple))
+    >>> zip_nested([['a', 'b'],['c', 'd']], [['w', 'x'],['y', 'z']])
+    [[('a', 'w'), ('b', 'x')], [('c', 'y'), ('d', 'z')]]
     '''
     assert are_nested_lens_equal(lst1, lst2), "Lengths of nested lists are not equal"
     return [list(zip(lst1[i], lst2[i])) for i in range(len(lst1))]
 
 def concat(lsts):
-    '''
-    Concatinate lists of strings
+    ''' Concatinate lists of strings
 
-    Examples:
-        >>> concat([[['a', 'y']], [['b', 'z']]])
-        ['a,b', 'y,z']
+    Parameters
+    ----------
+    lsts : list(list(list(string)))
 
-        >>> concat([[['a', 'w']], [['b', 'x']], [['c', 'y']], [['d', 'z']]])
-        ['a,b,c,d', 'w,x,y,z']
+    Returns
+    -------
+    List(string)
 
-    Args:
-        lsts: list(list(list(string)))
+    Examples
+    --------
+    >>> concat([[['a', 'y']], [['b', 'z']]])
+    ['a,b', 'y,z']
 
-    Returns:
-        list(string)
+    >>> concat([[['a', 'w']], [['b', 'x']], [['c', 'y']], [['d', 'z']]])
+    ['a,b,c,d', 'w,x,y,z']
     '''
     lsts = [flatten(lst) for lst in lsts]
 
@@ -142,44 +156,49 @@ def concat(lsts):
     return flatten(concatted)
 
 def zip_msg_ids(lst, msg_ids):
-    '''
-    Zip message IDs of equal length
+    ''' Zip message IDs of equal length
 
-    Args:
-        lst: list
-        msg_ids: list(string)
+    Parameters
+    ----------
+    lst : list
+    msg_ids : list(string)
 
-    Returns:
-        list(tuple)
+    Returns
+    -------
+    List(tuple)
     '''
     assert are_lens_equal(msg_ids, lst), "List lengths are not equal"
     return list(zip(msg_ids, lst))
 
 def to_df(lst, loc_txt):
-    '''
-    Convert list of zipped values to dataframe
+    ''' Convert list of zipped values to dataframe
 
-    Example:
-        >>> to_df(
-        ...    [('msg_id1', ['val1']), ('msg_id2', ['val1', 'val2'])],
-        ...    "field_name")
-        ... )
-           msg_id   seg        field_name
-        0  msg_id1  seg_0      val1
-        1  msg_id2  seg_0      val1
-        2  msg_id1  seg_1      None
-        3  msg_id2  seg_1      val2
+    Parameters
+    ----------
+    lst : list(tuple(string))
 
-    Args:
-        lst: list(tuple(string))
-            List of tuples, where the first element is the message ID and the
-            second element is a list of parsed values
+        List of tuples, where the first element is the message ID and the
+        second element is a list of parsed values
 
-        loc_txt: string
-            Location text
+    loc_txt : string
 
-    Returns:
-        dataframe
+        Location text
+
+    Returns
+    -------
+    Dataframe
+
+    Examples
+    -------
+    >>> to_df(
+    ...    [('msg_id1', ['val1']), ('msg_id2', ['val1', 'val2'])],
+    ...    "field_name")
+    ... )
+       msg_id   seg        field_name
+    0  msg_id1  seg_0      val1
+    1  msg_id2  seg_0      val1
+    2  msg_id1  seg_1      None
+    3  msg_id2  seg_1      val2
     '''
     # pylint: disable=invalid-name
 
@@ -203,14 +222,15 @@ def to_df(lst, loc_txt):
     return df
 
 def join_dfs(dfs):
-    '''
-    Join a list of dataframes
+    ''' Join a list of dataframes
 
-    Args:
-        dfs: list(dataframes)
+    Parameters
+    ----------
+    dfs : list(dataframes)
 
-    Returns:
-        dataframe
+    Returns
+    -------
+    Dataframe
     '''
     # pylint: disable=no-else-return
 

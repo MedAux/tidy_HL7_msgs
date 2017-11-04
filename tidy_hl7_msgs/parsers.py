@@ -8,52 +8,58 @@ import numpy as np
 from .helpers import concat
 
 def parse_msgs(loc_txt, msgs):
-    '''
-    Parse messages at a given location
+    ''' Parse messages at a given location
 
-    Examples:
-        >>> msg1 = '...AL1|3|DA|1545^MORPHINE^99HIC|||20080828|||\n...'
-        >>> msg2 = '...AL1|1|DRUG|00000741^OXYCODONE||HYPOTENSION\n...'
-        >>> parse_msgs("AL1.3.1", [msg1, msg2])
-        >>> [['1545'], ['00000741']]
+    Parameters
+    ----------
+    loc_txt : string of location to parse
+    msgs : list(string)
 
-        >>> # multiple segments per message
-        >>> seg_1 = '...AL1|1|DRUG|00000741^OXYCODONE||HYPOTENSION\n'
-        >>> seg_2 = 'AL1|2|DRUG|00001433^TRAMADOL||SEIZURES~VOMITING\n...'
-        >>> msg3 = seg_1 + seg_2
-        >>> parse_msgs("AL1.3.1", [msg1, msg3])
-        >>> [['1545'], ['00000741', '00001433']]
+    Returns
+    -------
+    List(list(string))
 
-    Args:
-        loc_txt: string of location to parse
-        msgs: list(string)
-
-    Returns:
-        list(list(string))
+    Examples
+    --------
+    >>> msg1 = '...AL1|3|DA|1545^MORPHINE^99HIC|||20080828|||...'
+    >>> msg2 = '...AL1|1|DRUG|00000741^OXYCODONE||HYPOTENSION...'
+    >>> parse_msgs("AL1.3.1", [msg1, msg2])
+    >>> [['1545'], ['00000741']]
+    >>>
+    >>> # multiple segments per message
+    >>> seg_1 = '...AL1|1|DRUG|00000741^OXYCODONE||HYPOTENSION'
+    >>> seg_2 = 'AL1|2|DRUG|00001433^TRAMADOL||SEIZURES~VOMITING...'
+    >>> msg3 = seg_1 + seg_2
+    >>> parse_msgs("AL1.3.1", [msg1, msg3])
+    >>> [['1545'], ['00000741', '00001433']]
     '''
     loc = parse_loc_txt(loc_txt)
     parser = get_parser(loc)
     return list(map(parser, msgs))
 
 def parse_loc_txt(loc_txt):
-    '''
-    Parse HL7 message location
+    ''' Parse HL7 message location
 
-    Examples:
-        >>> parse_loc_txt('PR1.3')
-        {'seg': 'PR1', 'field': 3, 'depth': 2}
+    Parameters
+    ----------
+    loc_txt : string of location
 
-        >>> parse_loc_txt('DG1.3.1')
-        {'seg': 'DG1', 'field': 3, 'comp': 0, 'depth': 3}
+    Returns
+    -------
+    Dictionary of location attributes and parsed elements
 
-    Args:
-        loc_txt: string of location
+    Raises
+    ------
+    ValueError if location syntax is incorrect
 
-    Returns:
-        Dictionary of location attributes and parsed elements
+    Examples
+    --------
+    >>> parse_loc_txt('PR1.3')
+    {'seg': 'PR1', 'field': 3, 'depth': 2}
+    >>>
+    >>> parse_loc_txt('DG1.3.1')
+    {'seg': 'DG1', 'field': 3, 'comp': 0, 'depth': 3}
 
-    Raises:
-        ValueError if location syntax is incorrect
     '''
     loc = {}
     loc_split = loc_txt.split(".")
@@ -77,40 +83,43 @@ def parse_loc_txt(loc_txt):
     return loc
 
 def get_parser(loc):
-    '''
-    Higher-order function to parse a location from an HL7 message
+    ''' Higher-order function to parse a location from an HL7 message
 
-    Example:
-        >>> msg = '...AL1|3|DA|1545^MORPHINE^99HIC|||20080828|||\n...'
-        >>> parse_allergy_type = get_parser("AL1.2")
-        >>> parse_allergy_type(msg)
-        >>> ['DA']
+    Parameters
+    ----------
+    loc : dict of location attributes and values
 
-        >>> parse_allergy_code_text = get_parser("AL1.3.2")
-        >>> parse_allergy_code_text(msg)
-        >>> ['MORPHINE']
+    Returns
+    -------
+    Function to parse an HL7 message at a given location
 
-        >>> seg_1 = '...AL1|3|DA|1545^MORPHINE^99HIC|||20080828|||\n'
-        >>> seg_2 = 'AL1|4|DA|1550^CODEINE^99HIC|||20101027|||\n...'
-        >>> msg_2 = seg_1 + seg_2
-        >>> parse_allergy_code_text(msg_2)
-        >>> ['MORPHINE', 'CODEINE']
-
-    Args:
-        loc: dict of location attributes and values
-
-    Returns:
-        Function to parse an HL7 message at a given location
+    Examples
+    --------
+    >>> msg = '...AL1|3|DA|1545^MORPHINE^99HIC|||20080828|||...'
+    >>> parse_allergy_type = get_parser("AL1.2")
+    >>> parse_allergy_type(msg)
+    >>> ['DA']
+    >>>
+    >>> parse_allergy_code_text = get_parser("AL1.3.2")
+    >>> parse_allergy_code_text(msg)
+    >>> ['MORPHINE']
+    >>>
+    >>> seg_1 = '...AL1|3|DA|1545^MORPHINE^99HIC|||20080828|||'
+    >>> seg_2 = 'AL1|4|DA|1550^CODEINE^99HIC|||20101027|||...'
+    >>> msg_2 = seg_1 + seg_2
+    >>> parse_allergy_code_text(msg_2)
+    >>> ['MORPHINE', 'CODEINE']
     '''
     def parser(msg):
-        '''
-        Parse an HL7 message
+        ''' Parse an HL7 message
 
-        Args:
-            msg: string
+        Parameters
+        ----------
+        msg : string
 
-        Returns:
-            list(string)
+        Returns
+        -------
+        List(string)
         '''
         assert loc['depth'] in [2, 3]
 
@@ -139,8 +148,7 @@ def get_parser(loc):
     return parser
 
 def parse_msg_id(id_locs_txt, msgs):
-    '''
-    Parse message IDs from raw HL7 messages
+    ''' Parse message IDs from raw HL7 messages
 
     The message identifier is a concatination of each ID location, which must
     be a single value for each message (i.e. the location must be for a
@@ -148,20 +156,24 @@ def parse_msg_id(id_locs_txt, msgs):
     message. Its value must be unique for each message because it is used to
     join data elements within a message.
 
-    Example:
-        >>> parse_msg_id(['MSH.7', 'PID.3.1', 'PID.3.4'], msgs)
-        ['Facility1,68188,1719801063', Facility2,588229,1721309017', ... ]
+    Parameters
+    ----------
+    id_locs_txt : list(string)
+    msgs : list(string)
 
-    Args:
-        id_locs_txt: list(string)
-        msgs: list(string)
+    Returns
+    -------
+    List(string)
 
-    Returns:
-        list(string)
+    Raises
+    ------
+    RuntimeError if a location has multiple values
+    RuntimeError if message IDs are not unique
 
-    Raises:
-        RuntimeError if a location has multiple values
-        RuntimeError if message IDs are not unique
+    Examples
+    --------
+    >>> parse_msg_id(['MSH.7', 'PID.3.1', 'PID.3.4'], msgs)
+    ['Facility1,68188,1719801063', 'Facility2,588229,1721309017']
     '''
     ids_per_loc = list(map(
         parse_msgs,

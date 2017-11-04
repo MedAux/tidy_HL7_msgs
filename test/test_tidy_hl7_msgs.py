@@ -1,7 +1,5 @@
 '''
 Unit Testing
-
-Run 'pytest -s' to print df
 '''
 # pylint: disable=missing-docstring
 

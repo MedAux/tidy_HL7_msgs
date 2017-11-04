@@ -53,4 +53,11 @@ A simple utility to parse and tidy HL7 message segments.
 2                     I10  
 ```
 
-## Intallation
+## Installation
+
+
+## Development
+To run unit tests:
+```bash
+$ python -m pytest
+```

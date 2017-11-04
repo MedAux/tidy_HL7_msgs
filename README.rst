@@ -1,6 +1,6 @@
 Tidy HL7 Messages
 =================
-A simple utility to parse and tidy HL7 message segments.
+A simple utility to parse and tidy HL7 message segments
 
 Example
 -------
@@ -61,6 +61,9 @@ Example
 Installation
 ------------
 
+.. code-block:: bash
+
+    $ pip install git+https://github.com/feyderm/tidy_HL7_msgs.git@v0.1.0
 
 Development
 -----------

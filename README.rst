@@ -1,6 +1,8 @@
 Tidy HL7 Messages
 =================
-A simple Python utility to parse and tidy HL7 message segments
+A simple Python 3.x utility to parse and tidy_ HL7 v2 message segments
+
+.. _tidy: http://vita.had.co.nz/papers/tidy-data.html
 
 Example
 -------
@@ -25,7 +27,7 @@ Example
     >>>
     >>> msgs = [msg_1, msg_2]
     >>> 
-    >>> # ID locations (fields and/or components to uniquely ID messages)
+    >>> # ID locations (fields and/or components that together uniquely ID messages)
     >>> id_locs = {
     ...    'MSH.7': 'Message Date-Time',
     ...    'MSH.10': 'Message Control ID',
@@ -60,18 +62,46 @@ Example
     0                     I10  
     2                     I10  
 
+Usage
+-----
+
+Locations must be either be a message field or component with the syntax
+*segment.field* or *segment.field.component*, respectively. Subcomponents are
+currently not supported.
+
+Locations can either be passed as a list or a dictionary. If passed as a
+list, the column names of the returned dataframe will the the
+field/component. If passed a dictionary, its keys must be the field/component
+and its values will be the column names.
+
+ID locations taken together must uniquely identify messages after deduplication.
+
+Report locations must all be within the same segment.
+
+Note that the order of the messages may not be maintained.
+
 Installation
 ------------
+
+Install for Python 3.x using ``pip`` or ``pip3``
 
 .. code-block:: bash
 
     $ pip install git+https://github.com/feyderm/tidy_HL7_msgs.git@v0.1.0
+    
+Contributing
+------------
+Pull requests more than welcome
 
-Development
------------
+Testing
+-------
 To run unit tests:
 
 .. code-block:: bash
 
     $ python -m pytest
     $ python -m pytest -s         # to print dataframe
+
+License
+-------
+MIT

@@ -3,6 +3,8 @@ Unit Testing
 '''
 
 import pytest
+import numpy as np
+import pandas as pd
 from tidy_hl7_msgs.main import tidy_segs
 from tidy_hl7_msgs.parsers import (
     parse_msgs,
@@ -91,6 +93,9 @@ def test_parse_msgs():
     assert parse_msgs('DG1.3.1', TEST_MSGS) == [
         ['D53.9', 'D53.9', 'C80.1', 'N30.00'],
         ['M43.16', 'M43.16', 'I10', 'M48.06']
+    assert parse_msgs('DG1.16', MSGS) == [
+        [np.nan] * 4,
+        [np.nan] * 4,
     ]
 
 def test_parse_loc_txt():
@@ -154,6 +159,36 @@ def test_tidy_segs():
 
     print('\n')
     print(df)
+    # expected values
+    assert all(df['id_loc_1'].values == (
+        ['20170515104040'] * 4 + ['20170711123256'] * 4
+    ))
+    assert all(df['id_loc_2'].values == (
+        ['123'] * 4 + ['456'] * 4
+    ))
+    assert all(df['id_loc_3'].values == (
+        ['FACILITY A'] * 4 + ['FACILITY B'] * 4
+    ))
+    assert all(df['seg'].values == (
+        ['seg_' + str(n) for n in list(range(4)) * 2]
+    ))
+    assert all(df['report_loc_1'].values == [
+        'D53.9', 'D53.9', 'C80.1', 'N30.00',
+        'M43.16', 'M43.16', 'I10', 'M48.06',
+    ])
+    assert all(df['report_loc_2'].values == [
+        'Nutritional anemia, unspecified',
+        'Nutritional anemia, unspecified',
+        'Malignant (primary) neoplasm, unspecified',
+        'Acute cystitis without hematuria',
+        'Spondylolisthesis, lumbar region',
+        'Spondylolisthesis, lumbar region',
+        'Essential (primary) hypertension',
+        'Spinal stenosis, lumbar region',
+    ])
+    assert all(df['report_loc_3'].values == 'I10')
+    assert all(df['report_loc_4'].values == ['AM', 'F', 'F', 'F'] * 2)
+    assert all(pd.isnull(df['report_loc_5']))
 
     # columns renamed
     col_names = list(ids_locs.values()) + list(report_locs.values())

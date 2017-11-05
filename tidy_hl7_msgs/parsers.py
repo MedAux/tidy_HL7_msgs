@@ -5,7 +5,7 @@ Parsers
 import re
 import itertools
 import numpy as np
-from .helpers import concat
+from tidy_hl7_msgs.helpers import concat
 
 def parse_msgs(loc_txt, msgs):
     ''' Parse messages at a given location

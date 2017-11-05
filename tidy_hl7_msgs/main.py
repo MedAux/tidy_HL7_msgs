@@ -4,13 +4,13 @@ Tidy HL7 message segments
 
 import itertools
 import pandas as pd
-from .helpers import (
+from tidy_hl7_msgs.helpers import (
     to_df,
     join_dfs,
     zip_msg_ids,
     are_segs_identical,
 )
-from .parsers import (
+from tidy_hl7_msgs.parsers import (
     parse_msgs,
     parse_msg_id
 )

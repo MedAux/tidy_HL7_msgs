@@ -1,6 +1,7 @@
 '''
 Unit Testing
 '''
+# pylint: disable=missing-docstring
 
 import pytest
 import numpy as np
@@ -38,7 +39,7 @@ MSG_2 = '''
     DG1|4||M48.06^Spinal stenosis, lumbar region^I10|||F
 '''.lstrip()
 
-TEST_MSGS = [MSG_1, MSG_2]
+MSGS = [MSG_1, MSG_2]
 
 def test_are_lens_equal():
     assert are_lens_equal([1, 2, 3], [1, 2, 3]) is True
@@ -86,13 +87,18 @@ def test_concat():
         concat([[['a', 'b']], [['x', 'y', 'z']]])
 
 def test_parse_msgs():
-    assert parse_msgs('DG1.6', TEST_MSGS) == [
+    assert parse_msgs('DG1.6', MSGS) == [
         ['AM', 'F', 'F', 'F'],
-        ['AM', 'F', 'F', 'F']
+        ['AM', 'F', 'F', 'F'],
     ]
-    assert parse_msgs('DG1.3.1', TEST_MSGS) == [
+    assert parse_msgs('DG1.3.1', MSGS) == [
         ['D53.9', 'D53.9', 'C80.1', 'N30.00'],
-        ['M43.16', 'M43.16', 'I10', 'M48.06']
+        ['M43.16', 'M43.16', 'I10', 'M48.06'],
+    ]
+
+    # TODO
+    # assert parse_msgs('PR1.5', MSGS) == [np.nan] * 2
+
     assert parse_msgs('DG1.16', MSGS) == [
         [np.nan] * 4,
         [np.nan] * 4,
@@ -122,43 +128,41 @@ def test_parse_loc_txt():
         parse_loc_txt('DG1.2.3.4')
 
 def test_parse_msg_ids():
-    assert parse_msg_id(['PID.3.1', 'PID.3.4', 'MSH.7'], TEST_MSGS) == (
+    assert parse_msg_id(['PID.3.1', 'PID.3.4', 'MSH.7'], MSGS) == (
         ['123,FACILITY A,20170515104040', '456,FACILITY B,20170711123256']
     )
 
     # field w/ multiple segments and therefore multiple values
     with pytest.raises(RuntimeError):
-        parse_msg_id(['DG1.3.1'], TEST_MSGS)
+        parse_msg_id(['DG1.3.1'], MSGS)
 
-    non_unique_msg_ids = TEST_MSGS + [TEST_MSGS[0]]
+    non_unique_msg_ids = MSGS + [MSGS[0]]
     with pytest.raises(RuntimeError):
         parse_msg_id(['PID.3.1', 'PID.3.4'], non_unique_msg_ids)
 
 def test_tidy_segs():
     # pylint: disable=invalid-name
 
-    ids_locs = {
-        'MSH.7': 'id_field_1',
-        'PID.3.1': 'id_field_2',
-        'PID.3.4': 'id_field_3',
+    id_locs = {
+        'MSH.7': 'id_loc_1',
+        'PID.3.1': 'id_loc_2',
+        'PID.3.4': 'id_loc_3',
     }
 
     report_locs = {
-        'DG1.3.1': 'report_field_1',
-        'DG1.3.2': 'report_field_2',
-        'DG1.3.3': 'report_field_3',
-        'DG1.6': 'report_field_4',
-        'DG1.16': 'report_field_5',
+        'DG1.3.1': 'report_loc_1',
+        'DG1.3.2': 'report_loc_2',
+        'DG1.3.3': 'report_loc_3',
+        'DG1.6': 'report_loc_4',
+        'DG1.16': 'report_loc_5',
     }
 
     df = tidy_segs(
-        ids_locs,
+        id_locs,
         report_locs,
-        TEST_MSGS
+        MSGS
     )
 
-    print('\n')
-    print(df)
     # expected values
     assert all(df['id_loc_1'].values == (
         ['20170515104040'] * 4 + ['20170711123256'] * 4
@@ -191,13 +195,17 @@ def test_tidy_segs():
     assert all(pd.isnull(df['report_loc_5']))
 
     # columns renamed
-    col_names = list(ids_locs.values()) + list(report_locs.values())
+    col_names = list(id_locs.values()) + list(report_locs.values())
     assert all([col in df.columns.values for col in col_names]) is True
 
-    # segments of report fields not the same
+    # report fields within the same segment
     with pytest.raises(ValueError):
         tidy_segs(
             ['PID.3.1', 'PID.3.4'],
             ['DG1.3.1', 'DG1.3.2', 'AL.15'],
-            TEST_MSGS
+            MSGS
         )
+
+    # for '-s' pytest arg
+    print('\n')
+    print(df)

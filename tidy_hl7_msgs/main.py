@@ -5,10 +5,10 @@ Tidy HL7 message segments
 import itertools
 import pandas as pd
 from .helpers import (
-    are_segs_identical,
-    zip_msg_ids,
     to_df,
-    join_dfs
+    join_dfs,
+    zip_msg_ids,
+    are_segs_identical,
 )
 from .parsers import (
     parse_msgs,

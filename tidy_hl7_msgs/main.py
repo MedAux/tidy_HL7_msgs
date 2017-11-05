@@ -95,14 +95,6 @@ def tidy_segs(msg_id_locs, report_locs, msgs):
     # join dataframes
     df = join_dfs(dfs)
 
-    # remove segments w/o data
-    df.dropna(
-        axis=0,
-        how='all',
-        subset=report_locs,
-        inplace=True
-    )
-
     df.sort_values(by=['msg_id'], inplace=True)
 
     # tidy message ids
@@ -110,10 +102,24 @@ def tidy_segs(msg_id_locs, report_locs, msgs):
     id_cols.columns = msg_id_locs
     df = pd.concat([id_cols, df], axis=1).drop(['msg_id'], axis=1)
 
+    # rename cols if locs are dicts
     try:
         df.rename(columns=msg_id_locs, inplace=True)
         df.rename(columns=report_locs, inplace=True)
     except TypeError:
         pass
+
+    # remove segments w/o data
+    try:
+        report_locs_lst = list(report_locs.values())
+    except AttributeError:
+        report_locs_lst = report_locs
+
+    df.dropna(
+        axis=0,
+        how='all',
+        subset=report_locs_lst,
+        inplace=True
+    )
 
     return df

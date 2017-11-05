@@ -96,8 +96,7 @@ def test_parse_msgs():
         ['M43.16', 'M43.16', 'I10', 'M48.06'],
     ]
 
-    # TODO
-    # assert parse_msgs('PR1.5', MSGS) == [np.nan] * 2
+    assert parse_msgs('PR1.5', MSGS) == [[np.nan], [np.nan]]
 
     assert parse_msgs('DG1.16', MSGS) == [
         [np.nan] * 4,

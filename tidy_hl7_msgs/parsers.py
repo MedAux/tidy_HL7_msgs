@@ -121,29 +121,31 @@ def get_parser(loc):
         -------
         List(string)
         '''
-        assert loc['depth'] in [2, 3]
-
         field_sep, comp_sep = list(msg)[3:5]
 
         seg_re = loc['seg'] + re.escape(field_sep) + '.*(?=\\n)'
         segs = re.findall(seg_re, msg)
 
-        data = []
-        for seg in segs:
-            seg_split = seg.split(field_sep)
-            if loc['depth'] == 2:
-                try:
-                    field_val = seg_split[loc['field']]
+        if not segs:
+            data = [np.nan]
+        else:
+            data = []
+            for seg in segs:
+                seg_split = seg.split(field_sep)
+                if loc['depth'] == 2:
+                    try:
+                        field_val = seg_split[loc['field']]
+                    except IndexError:
+                        field_val = np.nan
                     data.append(field_val)
-                except IndexError:
-                    data.append(np.nan)
-            else:
-                try:
-                    field_val = seg_split[loc['field']]
-                    comp_val = field_val.split(comp_sep)[loc['comp']]
+                else:
+                    assert loc['depth'] == 3
+                    try:
+                        field_val = seg_split[loc['field']]
+                        comp_val = field_val.split(comp_sep)[loc['comp']]
+                    except IndexError:
+                        comp_val = np.nan
                     data.append(comp_val)
-                except IndexError:
-                    data.append(np.nan)
         return data
     return parser
 

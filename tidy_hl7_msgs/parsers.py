@@ -121,6 +121,8 @@ def get_parser(loc):
         -------
         List(string)
         '''
+        # pylint: disable=expression-not-assigned
+
         field_sep, comp_sep = list(msg)[3:5]
 
         seg_re = loc['seg'] + re.escape(field_sep) + '.*(?=\\n)'
@@ -137,7 +139,7 @@ def get_parser(loc):
                         field_val = seg_split[loc['field']]
                     except IndexError:
                         field_val = np.nan
-                    data.append(field_val)
+                    data.append(field_val) if field_val else data.append(np.nan)
                 else:
                     assert loc['depth'] == 3
                     try:
@@ -145,7 +147,7 @@ def get_parser(loc):
                         comp_val = field_val.split(comp_sep)[loc['comp']]
                     except IndexError:
                         comp_val = np.nan
-                    data.append(comp_val)
+                    data.append(comp_val) if comp_val else data.append(np.nan)
         return data
     return parser
 

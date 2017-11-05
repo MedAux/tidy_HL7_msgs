@@ -1,1 +1,1 @@
-from .tidy_hl7_msgs import tidy_segs
+from .main import tidy_segs

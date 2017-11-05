@@ -4,7 +4,7 @@ Unit Testing
 # pylint: disable=missing-docstring
 
 import pytest
-from tidy_hl7_msgs.tidy_hl7_msgs import tidy_segs
+from tidy_hl7_msgs.main import tidy_segs
 from tidy_hl7_msgs.parsers import (
     parse_loc_txt, 
     parse_msgs, 

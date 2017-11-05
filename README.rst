@@ -7,7 +7,7 @@ Example
 
 .. code-block:: python
 
-    >>> import tidy_hl7_msgs
+    >>> from tidy_hl7_msgs import tidy_segs
     >>> 
     >>> msg_1 = '''
     ...    MSH|^~\\&||^Facility A|||20170515104040||ADT^A08^ADT A08|123
@@ -40,7 +40,8 @@ Example
     ...    'DG1.6': 'Diagnosis Type',
     ...}
     >>> 
-    >>> tidy_hl7_msgs.tidy_segs(id_locs, report_locs, msgs)
+    >>> df = tidy_segs(id_locs, report_locs, msgs)
+    >>> df
       Message Control ID Message Date-Time Facility Code    seg  \
     1                123    20170515104040           123  seg_0   
     3                123    20170515104040           123  seg_1   

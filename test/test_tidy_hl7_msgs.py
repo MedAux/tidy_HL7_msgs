@@ -6,16 +6,16 @@ Unit Testing
 import pytest
 from tidy_hl7_msgs.main import tidy_segs
 from tidy_hl7_msgs.parsers import (
-    parse_loc_txt, 
-    parse_msgs, 
+    parse_loc_txt,
+    parse_msgs,
     parse_msg_id
 )
 from tidy_hl7_msgs.helpers import (
-    concat, 
-    flatten, 
-    zip_nested, 
+    concat,
+    flatten,
+    zip_nested,
     are_lens_equal,
-    are_segs_identical, 
+    are_segs_identical,
     are_nested_lens_equal,
 )
 

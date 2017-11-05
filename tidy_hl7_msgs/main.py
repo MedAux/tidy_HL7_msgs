@@ -68,7 +68,7 @@ def tidy_segs(msg_id_locs, report_locs, msgs):
 
     msgs_unique = set(msgs)
 
-    # parse message ids
+    # parse message id locations
     msg_ids = parse_msg_id(list(msg_id_locs), msgs_unique)
 
     # parse report locations

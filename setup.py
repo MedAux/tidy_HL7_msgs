@@ -21,6 +21,7 @@ setup(
     ],
     keywords='healthcare HL7',
     packages=['tidy_hl7_msgs'],
+    python_requires='>=3',
     install_requires=[
         'pandas',
         'numpy',

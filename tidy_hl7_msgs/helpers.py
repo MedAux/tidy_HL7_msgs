@@ -4,6 +4,7 @@ Helpers
 
 import re
 import pandas as pd
+import numpy as np
 
 def are_lens_equal(*lsts):
     ''' Are lengths equal?
@@ -170,6 +171,44 @@ def zip_msg_ids(lst, msg_ids):
     assert are_lens_equal(msg_ids, lst), "List lengths are not equal"
     return list(zip(msg_ids, lst))
 
+def trim_rows(df, n_segs):
+    ''' Trim expanded rows to equal number of message segments
+
+    Slices message dataframe by rows to equal the number of message segments.
+    If message is missing a segment, single row is returned with a 'seg'
+    value of NA and NAs for all report locations.
+
+    Parameters
+    ----------
+    df: dataframe
+
+        Message IDs are expected to be identical since this function is
+        applied to a dataframe following a group_by() operation on message
+        IDs
+
+    n_segs: dict
+
+        Keys are message IDs, and values are either integers for the number of
+        message segments or 'no_seg' if segment is missing
+
+    Returns
+    -------
+    Dataframe where number of rows equals number of message segments
+    '''
+    # pylint: disable=invalid-name
+    msg_ids = set(df['msg_id'])
+    assert len(msg_ids) == 1, 'Message IDs are not identical'
+    msg_id = msg_ids.pop()
+
+    if n_segs[msg_id] == 'no_seg':
+        df_trimmed = df.iloc[:1]
+        df_trimmed.replace('no_seg', np.nan, inplace=True)
+        df_trimmed['seg'] = np.nan
+    else:
+        df_trimmed = df.iloc[:n_segs[msg_id]]
+
+    return df_trimmed
+
 def to_df(lst, loc_txt):
     ''' Convert list of zipped values to dataframe
 
@@ -219,7 +258,19 @@ def to_df(lst, loc_txt):
         },
         inplace=True
     )
-    return df
+
+    # The number of segments per message is expanded by the from_dict() method
+    # to equal that of the message with the greatest number of segments.  Below
+    # removes these expanded segments/rows.
+    n_segs_per_msg = {}
+    for pair in lst:
+        if pair[1][0] == 'no_seg':
+            n_segs_per_msg[pair[0]] = 'no_seg'
+        else:
+            n_segs_per_msg[pair[0]] = len(pair[1])
+
+    df_trimmed = df.groupby("msg_id").apply(trim_rows, n_segs=n_segs_per_msg)
+    return df_trimmed
 
 def join_dfs(dfs):
     ''' Join a list of dataframes

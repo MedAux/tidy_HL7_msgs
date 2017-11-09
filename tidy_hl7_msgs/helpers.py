@@ -233,16 +233,16 @@ def to_df(lst, loc_txt):
     ...    [('msg_id1', ['val1']), ('msg_id2', ['val1', 'val2'])],
     ...    "report_loc")
     ... )
-       msg_id   seg         report_loc
-    0  msg_id1  seg_1       val1
-    1  msg_id2  seg_1       val1
-    3  msg_id2  seg_2       val2
+       msg_id   seg     report_loc
+    0  msg_id1  1       val1
+    1  msg_id2  1       val1
+    3  msg_id2  2       val2
     '''
     # pylint: disable=invalid-name
     df = pd.DataFrame.from_dict(dict(lst), orient="index")
 
     n_cols = range(len(df.columns))
-    df.columns = ["seg_{n}".format(n=n+1) for n in n_cols]
+    df.columns = ["{n}".format(n=n+1) for n in n_cols]
 
     df["msg_id"] = df.index
     df = pd.melt(df, id_vars=["msg_id"])

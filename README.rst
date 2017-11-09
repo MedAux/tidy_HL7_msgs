@@ -38,10 +38,10 @@ Example
     >>> df = tidy_segs(id_locs, report_locs, msgs)
     >>> df
        MSH.7          PID.5.1    seg DG1.3.1 DG1.6
-    0  20170515104040     DOE  seg_1   D53.9    AM
-    1  20170515104040     DOE  seg_2   C80.1     F
-    2  20170711123256   SMITH  seg_1  M43.16    AM
-    3  20170711123256   SMITH  seg_2  M48.06     F
+    0  20170515104040     DOE      1   D53.9    AM
+    1  20170515104040     DOE      2   C80.1     F
+    2  20170711123256   SMITH      1  M43.16    AM
+    3  20170711123256   SMITH      2  M48.06     F
     
 
 Usage

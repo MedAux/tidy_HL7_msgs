@@ -88,7 +88,7 @@ def test_to_df():
     # pylint: disable=invalid-name
     d = {
         'msg_id': ['msg_id1', 'msg_id2', 'msg_id2'],
-        'seg': ['seg_1', 'seg_1', 'seg_2'],
+        'seg': ['1', '1', '2'],
         'report_loc': ['val1', 'val1', 'val2'],
     }
     expected_df = pd.DataFrame(data=d)

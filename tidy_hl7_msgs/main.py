@@ -92,7 +92,7 @@ def tidy_segs(msg_id_locs, report_locs, msgs):
     df = join_dfs(dfs)
 
     # cleanup
-    df['seg'].astype('float64')
+    df['seg'] = df['seg'].astype('float64')
     df.sort_values(by=['msg_id', 'seg'], inplace=True)
     df.reset_index(drop=True, inplace=True)
 

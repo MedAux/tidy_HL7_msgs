@@ -29,7 +29,7 @@ def are_lens_equal(*lsts):
     return len(set(lens)) == 1
 
 def are_nested_lens_equal(lst1, lst2):
-    ''' Are the lengths of nested lists equal?
+    ''' Are the lengths of lists nested one level deep equal?
 
     Parameters
     ----------
@@ -53,7 +53,7 @@ def are_nested_lens_equal(lst1, lst2):
     ... )
     False
     '''
-    assert are_lens_equal(lst1, lst2), "List lengths are not equal"
+    assert are_lens_equal(lst1, lst2), "Number of nested lists is not equal"
     len_lsts = range(len(lst1))
     return all([len(lst1[i]) == len(lst2[i]) for i in len_lsts]) is True
 
@@ -146,8 +146,8 @@ def concat(lsts):
     ['a,b,c,d', 'w,x,y,z']
     '''
     lsts = [flatten(lst) for lst in lsts]
-
     lst_lens = [len(lst) for lst in lsts]
+
     assert len(set(lst_lens)) == 1, "Message ID fields are unequal length"
 
     concatted = []
@@ -157,7 +157,7 @@ def concat(lsts):
     return flatten(concatted)
 
 def zip_msg_ids(lst, msg_ids):
-    ''' Zip message IDs of equal length
+    ''' Zip, ensuring both lists are equal lengths
 
     Parameters
     ----------
@@ -210,7 +210,7 @@ def trim_rows(df, n_segs):
     return df_trimmed
 
 def to_df(lst, loc_txt):
-    ''' Convert list of zipped values to dataframe
+    ''' Convert list of zipped values to a dataframe
 
     Parameters
     ----------
@@ -231,26 +231,22 @@ def to_df(lst, loc_txt):
     -------
     >>> to_df(
     ...    [('msg_id1', ['val1']), ('msg_id2', ['val1', 'val2'])],
-    ...    "field_name")
+    ...    "report_loc")
     ... )
-       msg_id   seg        field_name
-    0  msg_id1  seg_0      val1
-    1  msg_id2  seg_0      val1
-    2  msg_id1  seg_1      None
-    3  msg_id2  seg_1      val2
+       msg_id   seg         report_loc
+    0  msg_id1  seg_1       val1
+    1  msg_id2  seg_1       val1
+    3  msg_id2  seg_2       val2
     '''
     # pylint: disable=invalid-name
-
-    df = pd.DataFrame.from_dict(
-        dict(lst),
-        orient="index"
-    )
+    df = pd.DataFrame.from_dict(dict(lst), orient="index")
 
     n_cols = range(len(df.columns))
     df.columns = ["seg_{n}".format(n=n+1) for n in n_cols]
 
     df["msg_id"] = df.index
     df = pd.melt(df, id_vars=["msg_id"])
+
     df.rename(
         columns={
             "variable": "seg",
@@ -284,7 +280,6 @@ def join_dfs(dfs):
     Dataframe
     '''
     # pylint: disable=no-else-return
-
     if len(dfs) == 1:
         return dfs[0]
     else:

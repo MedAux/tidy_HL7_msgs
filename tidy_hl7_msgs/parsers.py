@@ -5,7 +5,8 @@ Parsers
 import re
 import itertools
 import numpy as np
-from tidy_hl7_msgs.helpers import concat
+import pandas as pd
+from tidy_hl7_msgs.helpers import concat, flatten
 
 def parse_msgs(loc_txt, msgs):
     ''' Parse messages at a given location
@@ -171,6 +172,8 @@ def parse_msg_id(id_locs_txt, msgs):
 
     Raises
     ------
+    RuntimeError if a location is missing a segment
+    RuntimeError if a location value is NA
     RuntimeError if a location has multiple values
     RuntimeError if message IDs are not unique
 
@@ -179,25 +182,39 @@ def parse_msg_id(id_locs_txt, msgs):
     >>> parse_msg_id(['MSH.7', 'PID.3.1', 'PID.3.4'], msgs)
     ['Facility1,68188,1719801063', 'Facility2,588229,1721309017']
     '''
-    ids_per_loc = list(map(
-        parse_msgs,
-        id_locs_txt,
-        itertools.repeat(msgs)
-    ))
+    ids_per_seg = list(map(parse_msgs, id_locs_txt, itertools.repeat(msgs)))
+    ids_per_msg = [np.array(flatten(msg_ids), dtype=object) for msg_ids in ids_per_seg]
 
-    are_loc_ids_single = (
-        [all([len(id_val) == 1 for id_val in loc_ids]) for loc_ids in ids_per_loc]
-    )
-
-    if not all(are_loc_ids_single):
-        locs_multi_ids = itertools.compress(id_locs_txt, are_loc_ids_single)
+    # id segment is missing
+    loc_missing_seg = ['no_seg' in list(id_val) for id_val in ids_per_msg]
+    if any(loc_missing_seg):
         raise RuntimeError(
-            "One or more message ID locations have multiple values per message: {locs}".format(
-                locs=", ".join(locs_multi_ids)
+            "Segment missing for message ID location: {locs}".format(
+                locs=", ".join(itertools.compress(id_locs_txt, loc_missing_seg))
             )
         )
 
-    concatted = concat(ids_per_loc)
+    # id values are NA
+    loc_has_na = [any(pd.isnull(id_val)) for id_val in ids_per_msg]
+    if any(loc_has_na):
+        raise RuntimeError(
+            "Message ID location missing value: {locs}".format(
+                locs=", ".join(itertools.compress(id_locs_txt, loc_has_na))
+            )
+        )
+
+    # id has multiple values
+    loc_has_multi_val = (
+        [any([len(id_val) > 1 for id_val in msg_ids]) for msg_ids in ids_per_seg]
+    )
+    if any(loc_has_multi_val):
+        raise RuntimeError(
+            "One or more message ID locations have multiple values: {locs}".format(
+                locs=", ".join(itertools.compress(id_locs_txt, loc_has_multi_val))
+            )
+        )
+
+    concatted = concat(ids_per_seg)
 
     if len(set(concatted)) != len(msgs):
         raise RuntimeError("Messages IDs are not unique")

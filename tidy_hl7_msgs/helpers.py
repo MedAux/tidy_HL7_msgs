@@ -247,7 +247,7 @@ def to_df(lst, loc_txt):
     )
 
     n_cols = range(len(df.columns))
-    df.columns = ["seg_{n}".format(n=n) for n in n_cols]
+    df.columns = ["seg_{n}".format(n=n+1) for n in n_cols]
 
     df["msg_id"] = df.index
     df = pd.melt(df, id_vars=["msg_id"])

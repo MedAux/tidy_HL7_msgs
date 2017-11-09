@@ -129,7 +129,7 @@ def get_parser(loc):
         segs = re.findall(seg_re, msg)
 
         if not segs:
-            data = [np.nan]
+            data = ['no_seg']
         else:
             data = []
             for seg in segs:

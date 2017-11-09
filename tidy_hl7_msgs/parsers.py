@@ -68,8 +68,8 @@ def parse_loc_txt(loc_txt):
 
     if loc['depth'] not in [2, 3]:
         raise ValueError(
-            "Syntax of location must be either '<segment>.<field>' or "
-            "'<segment>.<field>.<component>'"
+            "Syntax of location must be either <segment>.<field> or "
+            "<segment>.<field>.<component>"
         )
 
     loc['seg'] = loc_split[0]
@@ -123,7 +123,6 @@ def get_parser(loc):
         List(string)
         '''
         # pylint: disable=expression-not-assigned
-
         field_sep, comp_sep = list(msg)[3:5]
 
         seg_re = loc['seg'] + re.escape(field_sep) + '.*(?=\\n)'
@@ -140,6 +139,7 @@ def get_parser(loc):
                         field_val = seg_split[loc['field']]
                     except IndexError:
                         field_val = np.nan
+                    # if sep present for split but no data (i.e empty string)
                     data.append(field_val) if field_val else data.append(np.nan)
                 else:
                     assert loc['depth'] == 3
@@ -148,6 +148,7 @@ def get_parser(loc):
                         comp_val = field_val.split(comp_sep)[loc['comp']]
                     except IndexError:
                         comp_val = np.nan
+                    # if sep present for split but no data (i.e empty string)
                     data.append(comp_val) if comp_val else data.append(np.nan)
         return data
     return parser
@@ -155,11 +156,12 @@ def get_parser(loc):
 def parse_msg_id(id_locs_txt, msgs):
     ''' Parse message IDs from raw HL7 messages
 
-    The message identifier is a concatination of each ID location, which must
-    be a single value for each message (i.e. the location must be for a
-    segment found only once in a message). Returns a single string per
-    message. Its value must be unique for each message because it is used to
-    join data elements within a message.
+    The message identifier is a concatination of the each ID location value,
+    which must not be missing and which must be a single value for each
+    location (i.e. the location must be for a segment found only once in a
+    message). Returns a single string per message. Its value must be unique
+    for each message because it is used when joining data elements within a
+    message.
 
     Parameters
     ----------

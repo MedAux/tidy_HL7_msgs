@@ -27,40 +27,22 @@ Example
     >>>
     >>> msgs = [msg_1, msg_2]
     >>> 
-    >>> # ID locations (fields and/or components that together uniquely ID messages)
-    >>> id_locs = {
-    ...    'MSH.7': 'Message Date-Time',
-    ...    'MSH.10': 'Message Control ID',
-    ...    'PID.3.1': 'Facility Code',
-    ... }
+    >>> # Message ID locations
+    >>> # (fields and/or components that together uniquely ID messages)
+    >>> id_locs = ['MSH.7', 'PID.5.1']
     >>> 
-    >>> # Report locations (fields and/or components to report)
-    >>> report_locs = {
-    ...    'DG1.3.1': 'Diagnosis Code ID',
-    ...    'DG1.3.2': 'Diagnosis Code Text',
-    ...    'DG1.3.3': 'Diagnosis Coding System',
-    ...    'DG1.6': 'Diagnosis Type',
-    ...}
+    >>> # Report locations
+    >>> # (fields and/or components to report)
+    >>> report_locs = ['DG1.3.1', 'DG1.6']
     >>> 
     >>> df = tidy_segs(id_locs, report_locs, msgs)
     >>> df
-      Message Control ID Message Date-Time Facility Code    seg  \
-    1                123    20170515104040           123  seg_0   
-    3                123    20170515104040           123  seg_1   
-    0                456    20170711123256           456  seg_0   
-    2                456    20170711123256           456  seg_1   
+       MSH.7          PID.5.1    seg DG1.3.1 DG1.6
+    0  20170515104040     DOE  seg_1   D53.9    AM
+    1  20170515104040     DOE  seg_2   C80.1     F
+    2  20170711123256   SMITH  seg_1  M43.16    AM
+    3  20170711123256   SMITH  seg_2  M48.06     F
     
-                             Diagnosis Code Text Diagnosis Code ID Diagnosis Type  \
-    1            Nutritional anemia, unspecified             D53.9             AM   
-    3  Malignant (primary) neoplasm, unspecified             C80.1              F   
-    0           Spondylolisthesis, lumbar region            M43.16             AM   
-    2             Spinal stenosis, lumbar region            M48.06              F   
-    
-      Diagnosis Coding System  
-    1                     I10  
-    3                     I10  
-    0                     I10  
-    2                     I10  
 
 Usage
 -----

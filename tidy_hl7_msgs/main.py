@@ -59,9 +59,18 @@ def tidy_segs(msg_id_locs, report_locs, msgs):
 
     Raises
     ------
+    ValueError if any parameter is empty
     ValueError if report locations are not from the same segment
     '''
     # pylint: disable=invalid-name
+    if not msg_id_locs:
+        raise ValueError("One or more message ID locations required")
+
+    if not report_locs:
+        raise ValueError("One or more report locations required")
+
+    if not msgs:
+        raise ValueError("One of more HL7 v2 messages required")
 
     if not are_segs_identical(report_locs):
         raise ValueError("Report locations must be from the same segment")

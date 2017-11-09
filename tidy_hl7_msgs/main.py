@@ -104,7 +104,9 @@ def tidy_segs(msg_id_locs, report_locs, msgs):
     # join dataframes
     df = join_dfs(dfs)
 
+    # cleanup
     df.sort_values(by=['msg_id'], inplace=True)
+    df.reset_index(drop=True, inplace=True)
 
     # tidy message ids
     id_cols = df['msg_id'].str.split(",", expand=True)

@@ -91,9 +91,12 @@ def tidy_segs(msg_id_locs, report_locs, msgs):
     # join dataframes
     df = join_dfs(dfs)
 
-    # cleanup
-    df['seg'] = df['seg'].astype('float64')
+    # for natural sorting by segment, then for pretty printing
+    df['seg'] = df['seg'].astype('float32')
     df.sort_values(by=['msg_id', 'seg'], inplace=True)
+    df['seg'] = df['seg'].astype('object')
+
+    # cleanup index
     df.reset_index(drop=True, inplace=True)
 
     # tidy message ids

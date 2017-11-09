@@ -73,7 +73,7 @@ def test_df_vals():
     msg_1_seg_1 = {
         'msg_date_time': ['20170515104040'],
         'facility_code': ['123'],
-        'seg': ['1'],
+        'seg': [1.0],
         'diag_dr': [np.nan],
         'diag_type': ['AM'],
         'diag_code': ['D53.9'],
@@ -81,7 +81,7 @@ def test_df_vals():
     msg_1_seg_2 = {
         'msg_date_time': ['20170515104040'],
         'facility_code': ['123'],
-        'seg': ['2'],
+        'seg': [2.0],
         'diag_dr': [np.nan],
         'diag_type': [np.nan],
         'diag_code': [np.nan],
@@ -89,7 +89,7 @@ def test_df_vals():
     msg_2_seg_1 = {
         'msg_date_time': ['20170711123256'],
         'facility_code': ['456'],
-        'seg': ['1'],
+        'seg': [1.0],
         'diag_dr': [np.nan],
         'diag_type': ['AM'],
         'diag_code': ['M43.16'],
@@ -105,8 +105,8 @@ def test_df_vals():
 
     df = tidy_segs(MSG_ID_LOCS, REPORT_LOCS_DG1, MSGS)
     df_msg_1 = df.loc[df['msg_date_time'] == '20170515104040']
-    df_msg_1_seg_1 = df_msg_1.loc[df['seg'] == '1'].to_dict('list')
-    df_msg_1_seg_2 = df_msg_1.loc[df['seg'] == '2'].to_dict('list')
+    df_msg_1_seg_1 = df_msg_1.loc[df['seg'] == 1].to_dict('list')
+    df_msg_1_seg_2 = df_msg_1.loc[df['seg'] == 2].to_dict('list')
     df_msg_2_seg_1 = df.loc[df['msg_date_time'] == '20170711123256'].to_dict('list')
     df_msg_3_seg_1 = df.loc[df['msg_date_time'] == '20170322123231'].to_dict('list')
 

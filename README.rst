@@ -58,13 +58,13 @@ Example
 Usage
 -----
 
-Locations must be either fields (i.e *segment.field*) or components (i.e. *segment.field.component*). Subcomponents are currently not supported.
+Locations must be either fields (i.e. *segment.field*) or components (i.e. *segment.field.component*). Subcomponents are currently not supported.
 
 ID locations, taken together, must uniquely identify messages after deduplication.
 
 Report locations must be within the same segment.
 
-Missing data is represented as NA.  Messages missing the report location segment are represented as a single row with NA for their seg column. 
+Missing data is represented as NA.  Messages missing a segment for the report locations is represented as a single row with NA for its segment and report locations.
 
 Note that the order of the messages is not maintained.
 

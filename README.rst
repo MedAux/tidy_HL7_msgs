@@ -64,7 +64,7 @@ ID locations, taken together, must uniquely identify messages after deduplicatio
 
 Report locations must be within the same segment.
 
-Missing data is represented as NA.  Messages missing a segment for the report locations is represented as a single row with NA for its segment and report locations.
+Missing data is represented as NA.  Messages missing a segment for the report locations are represented as a single row with NAs for their segment and report locations.
 
 Note that the order of the messages is not maintained.
 

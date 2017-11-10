@@ -42,25 +42,31 @@ Example
     1  20170515104040     DOE      2   C80.1     F
     2  20170711123256   SMITH      1  M43.16    AM
     3  20170711123256   SMITH      2  M48.06     F
-    
+    >>>
+    >>> # pass locations as dicts to rename columns
+    >>> id_locs_dict = {'MSH.7':'Msg date-time', 'PID.5.1':'Patient Last Name'}
+    >>> report_locs_dict = {'DG1.3.1': 'Diagnosis Code', 'DG1.6': 'Diagnosis Type'}
+    >>> df_renamed = tidy_segs(id_locs_dict, report_locs_dict, msgs)
+    >>> df_renamed
+         Msg date-time Patient Last Name seg Diagnosis Type Diagnosis Code
+    0   20170515104040               DOE   1             AM          D53.9
+    1   20170515104040               DOE   2              F          C80.1
+    2   20170711123256             SMITH   1             AM         M43.16
+    3   20170711123256             SMITH   2              F         M48.06
 
 Usage
 -----
 
-Locations must be either be a message field or component with the syntax
-*segment.field* or *segment.field.component*, respectively. Subcomponents are
-currently not supported.
+Locations must be either *segment.field* or *segment.field.component*. Subcomponents are currently not supported.
 
-Locations can either be passed as a list or a dictionary. If passed as a
-list, the column names of the returned dataframe will the the
-field/component. If passed a dictionary, its keys must be the field/component
-and its values will be the column names.
-
-ID locations taken together must uniquely identify messages after deduplication.
+ID locations, taken together, must uniquely identify messages after deduplication.
 
 Report locations must all be within the same segment.
 
-Note that the order of the messages may not be maintained.
+Missing data is represented as NA.  Messages missing the report location segment have NA in the seg column. 
+
+Note that the order of the messages is not maintained.
+
 
 Installation
 ------------
@@ -73,7 +79,7 @@ Install for Python 3.x using ``pip`` or ``pip3``
     
 Contributing
 ------------
-Pull requests more than welcome
+Pull requests welcome
 
 Testing
 -------

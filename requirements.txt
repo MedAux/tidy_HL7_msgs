@@ -3,5 +3,5 @@ pandas==0.21.0
 py==1.4.34
 pytest==3.2.3
 python-dateutil==2.6.1
-pytz==2017.2
+pytz==2017.3
 six==1.11.0

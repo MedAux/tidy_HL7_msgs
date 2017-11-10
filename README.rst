@@ -43,27 +43,28 @@ Example
     2  20170711123256   SMITH      1  M43.16    AM
     3  20170711123256   SMITH      2  M48.06     F
     >>>
+    >>>
     >>> # pass locations as dicts to rename columns
-    >>> id_locs_dict = {'MSH.7':'Msg date-time', 'PID.5.1':'Patient Last Name'}
+    >>> id_locs_dict = {'MSH.7':'Msg Datetime', 'PID.5.1':'Patient Last Name'}
     >>> report_locs_dict = {'DG1.3.1': 'Diagnosis Code', 'DG1.6': 'Diagnosis Type'}
     >>> df_renamed = tidy_segs(id_locs_dict, report_locs_dict, msgs)
     >>> df_renamed
-         Msg date-time Patient Last Name seg Diagnosis Type Diagnosis Code
-    0   20170515104040               DOE   1             AM          D53.9
-    1   20170515104040               DOE   2              F          C80.1
-    2   20170711123256             SMITH   1             AM         M43.16
-    3   20170711123256             SMITH   2              F         M48.06
+          Msg Datetime Patient Last Name seg Diagnosis Code Diagnosis Type 
+    0   20170515104040               DOE   1          D53.9             AM 
+    1   20170515104040               DOE   2          C80.1              F 
+    2   20170711123256             SMITH   1         M43.16             AM 
+    3   20170711123256             SMITH   2         M48.06              F 
 
 Usage
 -----
 
-Locations must be either *segment.field* or *segment.field.component*. Subcomponents are currently not supported.
+Locations must be either fields (i.e *segment.field*) or components (i.e. *segment.field.component*). Subcomponents are currently not supported.
 
 ID locations, taken together, must uniquely identify messages after deduplication.
 
-Report locations must all be within the same segment.
+Report locations must be within the same segment.
 
-Missing data is represented as NA.  Messages missing the report location segment have NA in the seg column. 
+Missing data is represented as NA.  Messages missing the report location segment are represented as a single row with NA for their seg column. 
 
 Note that the order of the messages is not maintained.
 

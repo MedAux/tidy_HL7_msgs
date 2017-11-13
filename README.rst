@@ -1,6 +1,6 @@
 Tidy HL7 Messages
 =================
-A simple Python 3.x utility to parse and tidy_ HL7 v2 message segments
+A Python 3.x utility to parse and tidy_ HL7 v2 message segments
 
 .. _tidy: http://vita.had.co.nz/papers/tidy-data.html
 
@@ -45,8 +45,15 @@ Example
     >>>
     >>>
     >>> # pass locations as dicts to rename columns
-    >>> id_locs_dict = {'MSH.7':'Msg Datetime', 'PID.5.1':'Patient Last Name'}
-    >>> report_locs_dict = {'DG1.3.1': 'Diagnosis Code', 'DG1.6': 'Diagnosis Type'}
+    >>> id_locs_dict = {
+    ...     'MSH.7':'Msg Datetime',
+    ...     'PID.5.1':'Patient Last Name'
+    ... }
+    >>> report_locs_dict = {
+    ...     'DG1.3.1': 'Diagnosis Code',
+    ...     'DG1.6': 'Diagnosis Type'
+    ... }
+    >>>
     >>> df_renamed = tidy_segs(id_locs_dict, report_locs_dict, msgs)
     >>> df_renamed
           Msg Datetime Patient Last Name seg Diagnosis Code Diagnosis Type 
@@ -58,15 +65,19 @@ Example
 Usage
 -----
 
-Locations must be either fields (i.e. *segment.field*) or components (i.e. *segment.field.component*). Subcomponents are currently not supported.
+Locations
+    Must be fields or components (i.e. *segment.field* or *segment.field.component*). Subcomponents are currently not supported.
 
-ID locations, taken together, must uniquely identify messages after deduplication.
+    ID locations, taken together, must uniquely identify messages after deduplication.
 
-Report locations must be within the same segment.
+    All report locations must be within the same segment.
 
-Missing data is represented as NA.  Messages missing a segment for the report locations are represented as a single row with NAs for their segment and report locations.
+Missing data
+    Represented as NANs
+    
+    Messages missing a segment for the report location are represented as a single row with NANs for their segment and report locations.
 
-Note that the order of the messages is not maintained.
+Note that the order of the messages is not maintained
 
 
 Installation

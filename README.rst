@@ -70,7 +70,7 @@ Locations
 
     ID locations, taken together, must uniquely identify messages after deduplication.
 
-    All report locations must be within the same segment.
+    All report locations must be from the same segment.
 
 Missing data
     Represented as NaNs

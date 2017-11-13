@@ -73,9 +73,9 @@ Locations
     All report locations must be within the same segment.
 
 Missing data
-    Represented as NANs
-    
-    Messages missing a segment for the report location are represented as a single row with NANs for their segment and report locations.
+    Represented as NaNs
+
+    Messages missing a segment for the report location are represented as a single row with NaNs for the segment number and report locations.
 
 Note that the order of the messages is not maintained
 

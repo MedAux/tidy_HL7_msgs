@@ -7,7 +7,7 @@ A Python 3.x utility to parse and tidy_ HL7 v2 message segments
 Example
 -------
 
-.. code-block:: python
+.. code-block:: none
 
     >>> from tidy_hl7_msgs import tidy_segs
     >>> 
